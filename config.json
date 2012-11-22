@@ -1,0 +1,5 @@
+{
+  "port" : 8080,
+  "limit_post_size" : true,
+  "post_size_limit" : 1e6
+}

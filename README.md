@@ -1,11 +1,9 @@
 NARF ( Node API REST Framework )
 =================================
 
-NOTE : line numbers subject to change
-
 Narf is a basic framework for creating an API with node , it currently supports both GET and POST
 
-Narf runs on the default port 8080. this can be changed on line 111 in main.js : listen( 8080 );
+Narf runs on the default port 8080. this can be changed in config.json
 
 ## Usage
 
@@ -56,7 +54,7 @@ serverfunction : loopBack
 POST does not currently support function selection by url.
 
 By default POST will only accept data shorter than 1e6 in length for security purposes , this
-constraint may be modified or removed at line 35 in main.js : if ( body_data.length > 1e6 )
+constraint may be modified or disabled in config.json
 
 ## Private functions
 

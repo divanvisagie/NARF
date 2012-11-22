@@ -6,6 +6,7 @@
 */
 var http = require( 'http' ),
 	url = require( 'url' ), //for handeling url parameters
+	config = require ( './config' ),
 	APIFunctions = require( './api_functions' );
 	
 var ERROR = {
@@ -33,7 +34,7 @@ http.createServer( function( request, response ){
 
 			if ( data.length > 0 ) body_data += data;
 
-			if ( body_data.length > 1e6 ){
+			if ( config.limit_post_size && body_data.length > config.post_size_limit ){
 
 				console.log('Data was larger than 1e6 ,possible flood attack');
 				body_data = '';
@@ -108,4 +109,4 @@ http.createServer( function( request, response ){
 		response.end( toReturn );
 	}
 		
-}).listen( 8080 );
+}).listen( config.port );
