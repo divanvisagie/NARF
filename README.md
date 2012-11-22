@@ -18,21 +18,21 @@ Each GET function is passed a 'headers' and 'url' object.
 
 Each POST function is passed a 'body' object which contains the post body.
 
-exports.GET = {  //headers object and parsed url are passed as a parameter for get functions
+	exports.GET = {  //headers object and parsed url are passed as a parameter for get functions
+	
+		loopBack : function( headers, url ){
+				
+			return { 'headers' : headers, 'parsedURL' : url };
+		}
+	};
 
-	loopBack : function( headers, url ){
-			
-		return { 'headers' : headers, 'parsedURL' : url };
-	}
-};
-
-exports.POST = {  //post body is passed as a parameter for POST functions
-
-	loopBack : function( body ){
-
-		return body;
-	}
-};
+	exports.POST = {  //post body is passed as a parameter for POST functions
+	
+		loopBack : function( body ){
+	
+			return body;
+		}
+	};
 
 Both GET and POST contain the default function loopBack for testing purposes which returns the data 
 that was passed to it.
