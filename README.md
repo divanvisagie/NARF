@@ -35,23 +35,7 @@ Each POST function is passed a 'body' object which contains the post body.
 Both GET and POST contain the default function loopBack for testing purposes which returns the data 
 that was passed to it.
 
-### GET
-
-You can call GET API methods from the client using either the url to select the serverfunction:
-
-http://www.example.com:8080?serverfunction=loopBack
-
-or putting the serverfunction name in the appropriate header
-
-serverfunction : loopBack
-
-### POST
-
-You can call POST methods from the client by putting the serverfunction name in the appropriate header
-
-serverfunction : loopBack
-
-POST does not currently support function selection by url.
+### POST Body Limit
 
 By default POST will only accept data shorter than 1e6 in length for security purposes , this
 constraint may be modified or disabled in config.json
@@ -59,6 +43,20 @@ constraint may be modified or disabled in config.json
 ## Private functions
 
 It is not required , but it is recommended that private functions be placed in the Private object;
+
+
+## Configuration
+
+Configuration for the server is located in config.json, by defualt it covers the server port , a post 
+body size limit and an option to remove the limit as well as a bool value to determine if the client should
+be able to select serverfunction via the url.
+
+	{
+	  "port" : 8080,
+	  "limit_post_size" : true,
+	  "post_size_limit" : 1e6,
+	  "url_selection" : true
+	}
 
 ## License 
 
