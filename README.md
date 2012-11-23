@@ -3,7 +3,7 @@ NARF ( Node API REST Framework )
 
 Narf is a basic framework for creating an API with node , it currently supports both GET and POST
 
-Narf runs on the default port 8080. this can be changed in config.json
+Narf runs on the default port 8080, this can be changed in config.json
 
 ## Usage
 
