@@ -7,12 +7,12 @@
 var http = require( 'http' ),
 	url = require( 'url' ), //for handeling url parameters
 	config = require ( './config' ),
-	APIFunctions = require( './api_functions' );
+	api_functions = require( './api_functions' );
 	
 var ERROR = {
 
 	UNSUPPORTED_FUNCTION : { 'error' : 'Unsupported Server function' },
-	UNSUPPORTEDurl_object_FUNCTION : { 'error' : 'The server does not provide the GET functionality you requested' },
+	UNSUPPORTED_GET_FUNCTION : { 'error' : 'The server does not provide the GET functionality you requested' },
 	NUKE_ATTACK : { 'error' : 'Data was larger than 1e6 ,this is viewed as suspicious activity' }
 };
 
@@ -24,23 +24,23 @@ http.createServer( function( request, response ){
 
 		'Content-Type' : 'text/json',
 		'Access-Control-Allow-Origin' : '*' //allow any access origin
-	});
+	} );
 
 	//parse the url from request to an object
 	var url_object = url.parse( request.url, true ).query;
 
-	var funcToUse; //determine which function to perform using either the url or header
-		if ( request.headers.serverfunction )
-			funcToUse = request.headers.serverfunction;
-		else if ( url_object.serverfunction && config.url_selection )
-			funcToUse = url_object.serverfunction;
-		else
-			funcToUse = undefined;
+	var func_to_use; //determine which function to perform using either the url or header
+	if ( request.headers.serverfunction )
+		func_to_use = request.headers.serverfunction;
+	else if ( url_object.serverfunction && config.url_selection )
+		func_to_use = url_object.serverfunction;
+	else
+		func_to_use = undefined;
 
 	//determine the request method
 	if ( request.method === 'POST' ){
 
-		console.log( 'Called POST :' + funcToUse );
+		console.log( 'Called POST :' + func_to_use );
 
 		var body_data = '';
 
@@ -75,8 +75,8 @@ http.createServer( function( request, response ){
 			
 			var toReturn;
 			if( request.headers.serverfunction ){
-				if( APIFunctions.POST.hasOwnProperty( funcToUse ) && typeof APIFunctions.POST[ funcToUse ] === 'function' )
-					toReturn = APIFunctions.POST[ funcToUse ]( obj || null );
+				if( api_functions.POST.hasOwnProperty( func_to_use ) && typeof api_functions.POST[ func_to_use ] === 'function' )
+					toReturn = api_functions.POST[ func_to_use ]( obj || null );
 				
 				else
 					toReturn = ERROR.UNSUPPORTED_FUNCTION;
@@ -84,7 +84,7 @@ http.createServer( function( request, response ){
 			else
 				toReturn = ERROR.UNSUPPORTED_FUNCTION;
 
-			if ( typeof toReturn != 'string' ) //make sure tht the object has been stringified
+			if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
 				toReturn = JSON.stringify( toReturn );
 
 			response.end( toReturn );
@@ -93,20 +93,18 @@ http.createServer( function( request, response ){
 	}
 	else if ( request.method === 'GET' ){
 
-		console.log( 'Called GET :' + funcToUse );
-
 		var toReturn;
-		if( funcToUse ){
+		if( func_to_use ){
 
-			if( APIFunctions.GET.hasOwnProperty( funcToUse ) && typeof APIFunctions.GET[ funcToUse ] === 'function' )
-				toReturn = APIFunctions.GET[ funcToUse ]( request.headers, url_object );
+			if( api_functions.GET.hasOwnProperty( func_to_use ) && typeof api_functions.GET[ func_to_use ] === 'function' )
+				toReturn = api_functions.GET[ func_to_use ]( request.headers, url_object );
 			else
 				toReturn = ERROR.UNSUPPORTED_FUNCTION;
 		}
 		else
 			toReturn = ERROR.UNSUPPORTED_FUNCTION;
 
-		if ( typeof toReturn != 'string' ) //make sure tht the object has been stringified
+		if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
 			toReturn = JSON.stringify( toReturn );
 
 		response.end( toReturn );

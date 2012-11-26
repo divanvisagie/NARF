@@ -1,5 +1,5 @@
-NARF ( Node API REST Framework )
-=================================
+NARF 
+====
 
 Narf is a basic framework for creating an API with node , it currently supports both GET and POST
 
