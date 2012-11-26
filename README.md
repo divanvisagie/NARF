@@ -3,6 +3,9 @@ NARF
 
 Narf is a basic framework for creating an API with node , it currently supports both GET and POST
 
+
+The idea with NARF is that all you have to do for GET and POST is put the functions you want exposed in a particular object and everything else will be handled for you.
+
 Narf runs on the default port 8080, this can be changed in config.json
 
 ## Usage
@@ -57,6 +60,14 @@ be able to select serverfunction via the url.
 	  "post_size_limit" : 1e6,
 	  "url_selection" : true
 	}
+
+## Testing
+
+There is a simple test located in the tests directory , to run:
+
+	node ./tests/test.js 
+
+This is a simple client to check if the server is working properly.
 
 ## License 
 
