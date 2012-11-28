@@ -1,6 +1,14 @@
 {
+  "debug" : true,
   "port" : 8080,
+  "auto_port_min" : 8000,
+  "auto_port_max" : 8100,
   "limit_post_size" : true,
   "post_size_limit" : 1e6,
-  "url_selection" : true
+  "url_selection" : true,
+  "default_return" : { 
+
+  		"result" : "succeeded"
+   },
+   "overload_return" : "Your post has exceeded the size limit of the server"
 }

@@ -1,5 +1,5 @@
 /*
-	--------- Node API REST Framework ---------
+	----------------- NARF -----------------
 
 	Created By: Divan Visagie 2012-11-20
 	Last Edited By: Divan Visagie 2012-11-22
@@ -7,7 +7,10 @@
 var http = require( 'http' ),
 	url = require( 'url' ), //for handeling url parameters
 	config = require ( './config' ),
+	os = require( 'os' ),
+	portastic = require( 'portastic' ),
 	api_functions = require( './api_functions' );
+
 	
 var ERROR = {
 
@@ -16,68 +19,129 @@ var ERROR = {
 	NUKE_ATTACK : { 'error' : 'Data was larger than 1e6 ,this is viewed as suspicious activity' }
 };
 
-//create an http server
-http.createServer( function( request, response ){
+if ( config.debug ){
 
-	//write the response headers
-	response.writeHead( 200, {
+	console.log( 'Running server on: ' + os.hostname() );
+	console.log( os.type() + ' ' + os.release() + ' ' +  os.arch() );
+}
 
-		'Content-Type' : 'text/json',
-		'Access-Control-Allow-Origin' : '*' //allow any access origin
-	} );
+var port_to_use = null;
+if ( config.port === 'auto' ){ /* handle automatic port detection */
 
-	//parse the url from request to an object
-	var url_object = url.parse( request.url, true ).query;
+	var options = {
+		min : config.auto_port_min,
+		max : config.auto_port_max
+	};
 
-	var func_to_use; //determine which function to perform using either the url or header
-	if ( request.headers.serverfunction )
-		func_to_use = request.headers.serverfunction;
-	else if ( url_object.serverfunction && config.url_selection )
-		func_to_use = url_object.serverfunction;
-	else
-		func_to_use = undefined;
+	portastic.find( options, function( err, ports ) { /* retrieve an arrray of ports */
 
-	//determine the request method
-	if ( request.method === 'POST' ){
+		if (err)
+			throw err;
 
-		console.log( 'Called POST :' + func_to_use );
+		/* decide which port to use */
+		portastic.test( ports, function( err, data ){
 
-		var body_data = '';
+			if( data[0] ){ /* Use first available port */
 
-		request.on( 'data', function( data ){
-
-			if ( data.length > 0 ) body_data += data;
-
-			if ( config.limit_post_size && body_data.length > config.post_size_limit ){
-
-				console.log('Data was larger than 1e6 ,possible flood attack');
-				body_data = '';
-
-				request.connection.destory();
-				response.end( JSON.stringify( NUKE_ATTACK ) );
+				console.log( 'Running server on: ' + data[0] );
+				start_server( data[0] );
 			}
-
+			else
+				throw 'could not find a suitable port';
 		} );
-		request.on( 'end', function(){
 
-			var obj;
+	} );
+}
+else{
+	console.log( 'Running server on: ' + config.port );
+	start_server( config.port );
+}
 
-			try{
+function start_server( port ){//create an http server
 
-				if( typeof body_data === 'string' )
-					obj = JSON.parse( body_data );
-				else
-					obj = body_data;
-			}
-			catch ( ex ){
-				console.log( 'Error parsing object: ' + ex );
-			}
-			
-			var toReturn;
-			if( request.headers.serverfunction ){
-				if( api_functions.POST.hasOwnProperty( func_to_use ) && typeof api_functions.POST[ func_to_use ] === 'function' )
-					toReturn = api_functions.POST[ func_to_use ]( obj || null );
+	http.createServer( function( request, response ){
+
+		//write the response headers
+		response.writeHead( 200, {
+
+			'Content-Type' : 'text/json',
+			'Access-Control-Allow-Origin' : '*' //allow any access origin
+		} );
+
+		//parse the url from request to an object
+		var url_object = url.parse( request.url, true ).query;
+
+		var func_to_use; //determine which function to perform using either the url or header
+		if ( request.headers.serverfunction )
+			func_to_use = request.headers.serverfunction;
+		else if ( url_object.serverfunction && config.url_selection )
+			func_to_use = url_object.serverfunction;
+		else
+			func_to_use = undefined;
+
+		//determine the request method
+		if ( request.method === 'POST' ){
+
+			var body_data = '';
+
+			request.on( 'data', function( data ){
+
+				if ( data.length > 0 ) body_data += data;
+
+				if ( config.limit_post_size && body_data.length > config.post_size_limit ){
+
+					console.log('Data was larger than 1e6 ,possible flood attack');
+					body_data = '';
+
+					//request.connection.destory();
+					response.end( JSON.stringify( config.overload_return ) );
+				}
+
+			} );
+			request.on( 'end', function(){
+
+				var obj;
+
+				try{
+
+					if( typeof body_data === 'string' )
+						obj = JSON.parse( body_data );
+					else
+						obj = body_data;
+				}
+				catch ( ex ){
+					console.log( 'Error parsing object: ' + ex );
+				}
 				
+				var toReturn;
+				if( request.headers.serverfunction ){
+					if( api_functions.POST.hasOwnProperty( func_to_use ) && typeof api_functions.POST[ func_to_use ] === 'function' )
+						toReturn = api_functions.POST[ func_to_use ]( obj || null );
+					
+					else
+						toReturn = ERROR.UNSUPPORTED_FUNCTION;
+				}
+				else
+					toReturn = ERROR.UNSUPPORTED_FUNCTION;
+
+				if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
+					toReturn = JSON.stringify( toReturn );
+
+				if(toReturn)
+					response.end( toReturn );
+				else
+					response.end( JSON.stringify( config.default_return ) );
+
+			});
+
+		}
+		else if ( request.method === 'GET' ){
+
+			var toReturn;
+			if( func_to_use ){
+
+				if( api_functions.GET.hasOwnProperty( func_to_use ) && typeof api_functions.GET[ func_to_use ] === 'function' )
+					toReturn = api_functions.GET[ func_to_use ]( request.headers, url_object );
 				else
 					toReturn = ERROR.UNSUPPORTED_FUNCTION;
 			}
@@ -87,27 +151,11 @@ http.createServer( function( request, response ){
 			if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
 				toReturn = JSON.stringify( toReturn );
 
-			response.end( toReturn );
-		});
-
-	}
-	else if ( request.method === 'GET' ){
-
-		var toReturn;
-		if( func_to_use ){
-
-			if( api_functions.GET.hasOwnProperty( func_to_use ) && typeof api_functions.GET[ func_to_use ] === 'function' )
-				toReturn = api_functions.GET[ func_to_use ]( request.headers, url_object );
+			if(toReturn)
+					response.end( toReturn );
 			else
-				toReturn = ERROR.UNSUPPORTED_FUNCTION;
+				response.end( JSON.stringify( config.default_return ) );
 		}
-		else
-			toReturn = ERROR.UNSUPPORTED_FUNCTION;
-
-		if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
-			toReturn = JSON.stringify( toReturn );
-
-		response.end( toReturn );
-	}
-		
-}).listen( config.port );
+			
+	}).listen( port );
+}

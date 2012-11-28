@@ -69,6 +69,14 @@ There is a simple test located in the tests directory , to run:
 
 This is a simple client to check if the server is working properly.
 
+## Dependancies
+
+### Portastic
+
+Portastic allows automatic port assignment for NARF
+
+	npm install portastic
+
 ## License 
 
 ### MIT License
