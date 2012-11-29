@@ -45,11 +45,6 @@ exports.GET = {  //headers object and parsed url are passed as a parameter for g
 	loopBack : function( headers, url ){
 			
 		return { 'headers' : headers, 'parsedURL' : url };
-	},
-
-	noReturn : function( headers, url ){
-
-		console.log('Testing noreturn function');
 	}
 };
 

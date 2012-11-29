@@ -55,11 +55,33 @@ body size limit and an option to remove the limit as well as a bool value to det
 be able to select serverfunction via the url.
 
 	{
+	  "debug" : true,
 	  "port" : 8080,
+	  "auto_port_min" : 8000,
+	  "auto_port_max" : 8100,
+
+	  "https" : false,
+	  "key_path" : "./key.pem",
+	  "cert_path" : "./cert.pem",
+
 	  "limit_post_size" : true,
 	  "post_size_limit" : 1e6,
-	  "url_selection" : true
+	  "url_selection" : true,
+	  "default_return" : { 
+
+	  		"result" : "succeeded"
+	   }
 	}
+
+### port
+
+The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.
+
+## HTTPS
+
+HTTPS is switched off by default in the config due to its requirements, if you wish to switch it on you will need to provide the relative paths to your key and certificate files.
+
+If you want to create your own files for testing you can run generate_cert.sh( only tested on OSX ), but these certificates will be viewed as untrusted.
 
 ## Testing
 

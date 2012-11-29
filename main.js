@@ -5,6 +5,7 @@
 	Last Edited By: Divan Visagie 2012-11-22
 */
 var http = require( 'http' ),
+	https = require( 'https' ),
 	url = require( 'url' ), //for handeling url parameters
 	config = require ( './config' ),
 	os = require( 'os' ),
@@ -16,7 +17,7 @@ var ERROR = {
 
 	UNSUPPORTED_FUNCTION : { 'error' : 'Unsupported Server function' },
 	UNSUPPORTED_GET_FUNCTION : { 'error' : 'The server does not provide the GET functionality you requested' },
-	NUKE_ATTACK : { 'error' : 'Data was larger than 1e6 ,this is viewed as suspicious activity' }
+	NUKE_ATTACK : { 'error' : 'Data was larger than the specified limit ,this is viewed as suspicious activity' }
 };
 
 if ( config.debug ){
@@ -57,91 +58,65 @@ else{
 	start_server( config.port );
 }
 
-function start_server( port ){//create an http server
+function server_handler( request, response ){
 
-	http.createServer( function( request, response ){
+	//write the response headers
+	response.writeHead( 200, {
 
-		//write the response headers
-		response.writeHead( 200, {
+		'Content-Type' : 'text/json',
+		'Access-Control-Allow-Origin' : '*' //allow any access origin
+	} );
 
-			'Content-Type' : 'text/json',
-			'Access-Control-Allow-Origin' : '*' //allow any access origin
+	//parse the url from request to an object
+	var url_object = url.parse( request.url, true ).query;
+
+	var func_to_use; //determine which function to perform using either the url or header
+	if ( request.headers.serverfunction )
+		func_to_use = request.headers.serverfunction;
+	else if ( url_object.serverfunction && config.url_selection )
+		func_to_use = url_object.serverfunction;
+	else
+		func_to_use = undefined;
+
+	//determine the request method
+	if ( request.method === 'POST' ){
+
+		var body_data = '';
+
+		request.on( 'data', function( data ){
+
+			if ( data.length > 0 ) body_data += data;
+
+			if ( config.limit_post_size && body_data.length > config.post_size_limit ){
+
+				console.log('Data was larger than 1e6 ,possible flood attack');
+				body_data = '';
+
+				//request.connection.destory();
+				response.end( JSON.stringify( ERROR.NUKE_ATTACK ) );
+			}
+
 		} );
+		request.on( 'end', function(){
 
-		//parse the url from request to an object
-		var url_object = url.parse( request.url, true ).query;
+			var obj;
 
-		var func_to_use; //determine which function to perform using either the url or header
-		if ( request.headers.serverfunction )
-			func_to_use = request.headers.serverfunction;
-		else if ( url_object.serverfunction && config.url_selection )
-			func_to_use = url_object.serverfunction;
-		else
-			func_to_use = undefined;
+			try{
 
-		//determine the request method
-		if ( request.method === 'POST' ){
-
-			var body_data = '';
-
-			request.on( 'data', function( data ){
-
-				if ( data.length > 0 ) body_data += data;
-
-				if ( config.limit_post_size && body_data.length > config.post_size_limit ){
-
-					console.log('Data was larger than 1e6 ,possible flood attack');
-					body_data = '';
-
-					//request.connection.destory();
-					response.end( JSON.stringify( config.overload_return ) );
-				}
-
-			} );
-			request.on( 'end', function(){
-
-				var obj;
-
-				try{
-
-					if( typeof body_data === 'string' )
-						obj = JSON.parse( body_data );
-					else
-						obj = body_data;
-				}
-				catch ( ex ){
-					console.log( 'Error parsing object: ' + ex );
-				}
-				
-				var toReturn;
-				if( request.headers.serverfunction ){
-					if( api_functions.POST.hasOwnProperty( func_to_use ) && typeof api_functions.POST[ func_to_use ] === 'function' )
-						toReturn = api_functions.POST[ func_to_use ]( obj || null );
-					
-					else
-						toReturn = ERROR.UNSUPPORTED_FUNCTION;
-				}
+				if( typeof body_data === 'string' )
+					obj = JSON.parse( body_data );
 				else
-					toReturn = ERROR.UNSUPPORTED_FUNCTION;
-
-				if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
-					toReturn = JSON.stringify( toReturn );
-
-				if(toReturn)
-					response.end( toReturn );
-				else
-					response.end( JSON.stringify( config.default_return ) );
-
-			});
-
-		}
-		else if ( request.method === 'GET' ){
-
+					obj = body_data;
+			}
+			catch ( ex ){
+				console.log( 'Error parsing object: ' + ex );
+			}
+			
 			var toReturn;
-			if( func_to_use ){
-
-				if( api_functions.GET.hasOwnProperty( func_to_use ) && typeof api_functions.GET[ func_to_use ] === 'function' )
-					toReturn = api_functions.GET[ func_to_use ]( request.headers, url_object );
+			if( request.headers.serverfunction ){
+				if( api_functions.POST.hasOwnProperty( func_to_use ) && typeof api_functions.POST[ func_to_use ] === 'function' )
+					toReturn = api_functions.POST[ func_to_use ]( obj || null );
+				
 				else
 					toReturn = ERROR.UNSUPPORTED_FUNCTION;
 			}
@@ -152,10 +127,48 @@ function start_server( port ){//create an http server
 				toReturn = JSON.stringify( toReturn );
 
 			if(toReturn)
-					response.end( toReturn );
+				response.end( toReturn );
 			else
 				response.end( JSON.stringify( config.default_return ) );
+
+		});
+
+	}
+	else if ( request.method === 'GET' ){
+
+		var toReturn;
+		if( func_to_use ){
+
+			if( api_functions.GET.hasOwnProperty( func_to_use ) && typeof api_functions.GET[ func_to_use ] === 'function' )
+				toReturn = api_functions.GET[ func_to_use ]( request.headers, url_object );
+			else
+				toReturn = ERROR.UNSUPPORTED_FUNCTION;
 		}
-			
-	}).listen( port );
+		else
+			toReturn = ERROR.UNSUPPORTED_FUNCTION;
+
+		if ( typeof toReturn != 'string' ) //make sure the the object has been stringified
+			toReturn = JSON.stringify( toReturn );
+
+		if(toReturn)
+				response.end( toReturn );
+		else
+			response.end( JSON.stringify( config.default_return ) );
+	}
+}
+
+function start_server( port ){  //start the appropriate server
+
+	if ( !config.https )
+		http.createServer( server_handler ).listen( port );
+	else{
+		var fs = require('fs');
+
+		var options = {
+			key: fs.readFileSync( config.key_path ),
+			cert: fs.readFileSync( config.cert_path )
+		};
+
+		https.createServer( options, server_handler ).listen( port );
+	}
 }

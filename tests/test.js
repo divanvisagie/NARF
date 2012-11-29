@@ -1,10 +1,12 @@
+var hostname = 'localhost';
 
+console.time('done');
 
 var http = require( 'http' );
 
-	function performRequest( method ){
+function performRequest( method ){
 
-		var testObject = {
+	var testObject = {
 
 		'testText' : 'here is some text',
 		'testNumber' : 1001001
@@ -20,7 +22,7 @@ var http = require( 'http' );
 	};
 
 	var options = {
-		host: 'localhost',
+		host: hostname,
 		port: 8080,
 		method: 'POST',
 		headers: headers
@@ -29,6 +31,7 @@ var http = require( 'http' );
 	options.method = method || 'POST';
 
 	var req = http.request( options, function ( res ) {
+
 		res.setEncoding('utf-8');
 
 		var responseString = '';
@@ -43,8 +46,7 @@ var http = require( 'http' );
 			console.log( '\n' + method + ' object returned :' );
 			console.log(responseString);
 
-		});
-
+		} );
 	});
 
 	req.write(userString);
@@ -53,7 +55,6 @@ var http = require( 'http' );
 
 function nukeTest(){
 
-	
 	var testObject = {
 
 	'testText' : 'here is some text',
@@ -76,7 +77,7 @@ function nukeTest(){
 	};
 
 	var options = {
-		host: 'localhost',
+		host: hostname,
 		port: 8080,
 		method: 'POST',
 		headers: headers
@@ -109,8 +110,9 @@ function nukeTest(){
 	req.end();
 }
 
-
 performRequest( 'POST' );
 performRequest( 'GET' );
 nukeTest();
+
+console.timeEnd('done');
 
