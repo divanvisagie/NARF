@@ -37,21 +37,3 @@ var Private = {
 		return this.MD5( string );
 	}
 };
-
-//forward facing functions
-
-exports.GET = {  //headers object and parsed url are passed as a parameter for get functions
-
-	loopBack : function( headers, url ){
-			
-		return { 'headers' : headers, 'parsedURL' : url };
-	}
-};
-
-exports.POST = {  //post body is passed as a parameter for POST functions
-
-	loopBack : function( body ){
-
-		return body;
-	}
-};

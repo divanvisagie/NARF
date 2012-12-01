@@ -1,8 +1,7 @@
 NARF 
 ====
 
-Narf is a basic framework for creating an API with node , it currently supports both GET and POST
-
+Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST
 
 The idea with NARF is that all you have to do for GET and POST is put the functions you want exposed in a particular object and everything else will be handled for you.
 
@@ -10,43 +9,76 @@ Narf runs on the default port 8080, this can be changed in config.json
 
 ## Usage
 
-Both GET and POST functions are declared in api_functions and functions added to these 
-objects will automatically be available externally. The function is selected from the value of the 
-header serverfunction (can be passed via url for GET), each function must have a return statement and 
-return a valid object to the client.
+To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
 
-Each GET function is passed a 'headers' and 'url' object.
+### Example 
 
-Each POST function is passed a 'body' object which contains the post body.
+Below is an example of a simple narf server, in just these few lines , you can get a server running with GET and POST functionality:
 
-	exports.GET = {  //headers object and parsed url are passed as a parameter for get functions
-	
-		loopBack : function( headers, url ){
-				
-			return { 'headers' : headers, 'parsedURL' : url };
+	var narf = require( './narf' );
+
+	var APIFunctions = {
+
+		GET : {  //headers object and parsed url are passed as a parameter for get functions
+
+			loopBack : function( headers, url ){
+					
+				return { 'headers' : headers, 'parsedURL' : url };
+			}
+		},
+
+		POST : {  //post body is passed as a parameter for POST functions
+
+			loopBack : function( body ){
+
+				return body;
+			}
 		}
 	};
 
-	exports.POST = {  //post body is passed as a parameter for POST functions
-	
-		loopBack : function( body ){
-	
-			return body;
-		}
-	};
+	narf.startHTTPServer( APIFunctions );
 
-Both GET and POST contain the default function loopBack for testing purposes which returns the data 
-that was passed to it.
+If you want to add a socket server to your server you will have to store the HTTP server variable :
+
+	var httpServer = narf.startHTTPServer( APIFunctions );
+
+And then pass it to the socket server with a callback function.
+
+	narf.startSocketServer( httpServer, function( request ){
+
+	var connection = request.accept( null, request.origin ); //accept the connection request
+
+	connection.on( 'message', function( message ){ //the user has sent a message
+
+		if ( message.type === 'utf8' ){
+
+			console.log( message ); //process
+
+			if( typeof message === 'string' ) message = JSON.parse( message );
+
+			connection.send( JSON.stringify({ message : 'hello client' }) );
+		}
+
+	} );
+
+	connection.on( 'close', function( connection ){ //The user has closed the connection
+		
+		console.log( 'Client closed connection' );
+	} );
+
+} );
+
+The request in the socket server is passed to the callback function , from there , you have control to accept the request 
+and do the rest of the processing.
+
+### Example.js
+
+An example of narf implementation can be found in example.js
 
 ### POST Body Limit
 
 By default POST will only accept data shorter than 1e6 in length for security purposes , this
 constraint may be modified or disabled in config.json
-
-## Private functions
-
-It is not required , but it is recommended that private functions be placed in the Private object;
-
 
 ## Configuration
 
@@ -98,6 +130,12 @@ This is a simple client to check if the server is working properly.
 Portastic allows automatic port assignment for NARF
 
 	npm install portastic
+
+### Websocket
+
+Websocket allows for , well websocket support
+
+	npm install websocket
 
 ## License 
 
