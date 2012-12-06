@@ -1,5 +1,7 @@
 var narf = require( '../lib/narf' );
 
+narf.configure( require( './config' ) );
+
 var APIFunctions = { //forward facing functions
 
 	GET : {  //headers object and parsed url are passed as a parameter for get functions

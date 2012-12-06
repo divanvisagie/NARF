@@ -1,7 +1,7 @@
 NARF 
 ====
 
-Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST
+Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.
 
 The idea with NARF is that all you have to do for GET and POST is put the functions you want exposed in a particular object and everything else will be handled for you.
 
@@ -15,7 +15,7 @@ To create a narf server all you need is to create an object with your GET and PO
 
 Below is an example of a simple narf server, in just these few lines , you can get a server running with GET and POST functionality:
 
-	var narf = require( '../lib/narf' );
+	var narf = require( 'narf' );
 
 	var APIFunctions = {
 
@@ -82,7 +82,36 @@ constraint may be modified or disabled in lib/config.json
 
 ## Configuration
 
-Configuration for the server is located in lib/config.json, by defualt it covers the server port , a post 
+The default configuration for the server is located in lib/config.json. if you want to pass a custom configuration to narf you should do so using narf.configure( config_JSON )
+
+eg:
+
+	narf.configure( require( './config' ) );
+
+or:
+
+	narf.configure({
+		
+			"debug" : true,
+			"port" : 8081,
+			"auto_port_min" : 8000,
+			"auto_port_max" : 8100,
+
+			"https" : false,
+			"key_path" : "./key.pem",
+			"cert_path" : "./cert.pem",
+
+			"limit_post_size" : true,
+			"post_size_limit" : 1e6,
+			"url_selection" : true,
+			"default_return" : { 
+
+				"result" : "succeeded"
+   		}
+	});
+
+
+By defualt it covers the server port , a post 
 body size limit and an option to remove the limit as well as a bool value to determine if the client should
 be able to select serverfunction via the url.
 
