@@ -1,4 +1,4 @@
-var narf = require( './narf' );
+var narf = require( '../lib/narf' );
 
 var APIFunctions = { //forward facing functions
 

@@ -5,17 +5,17 @@ Narf is a basic framework for creating a JSON API with node , it currently suppo
 
 The idea with NARF is that all you have to do for GET and POST is put the functions you want exposed in a particular object and everything else will be handled for you.
 
-Narf runs on the default port 8080, this can be changed in config.json
+Narf runs on the default port 8080, this can be changed in lib/config.json
 
 ## Usage
 
-To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
+To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
 
 ### Example 
 
 Below is an example of a simple narf server, in just these few lines , you can get a server running with GET and POST functionality:
 
-	var narf = require( './narf' );
+	var narf = require( '../lib/narf' );
 
 	var APIFunctions = {
 
@@ -73,16 +73,16 @@ and do the rest of the processing.
 
 ### Example.js
 
-An example of narf implementation can be found in example.js
+An example of narf implementation can be found in examples/example.js
 
 ### POST Body Limit
 
 By default POST will only accept data shorter than 1e6 in length for security purposes , this
-constraint may be modified or disabled in config.json
+constraint may be modified or disabled in lib/config.json
 
 ## Configuration
 
-Configuration for the server is located in config.json, by defualt it covers the server port , a post 
+Configuration for the server is located in lib/config.json, by defualt it covers the server port , a post 
 body size limit and an option to remove the limit as well as a bool value to determine if the client should
 be able to select serverfunction via the url.
 

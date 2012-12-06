@@ -1,0 +1,24 @@
+{
+  "name": "NARF",
+  "description": "NARF",
+  "version": "0.0.9",
+  "author": "Divan Visagie <visagiedivan@gmail.com>",
+  "contributors": [ 
+    { "name": "Divan Visagie", "email": "visagiedivan@gmail.com" }
+  ],
+  "dependencies": {
+
+    "websocket": ">= 1.0.7",
+    "portastic": ">= 0.0.1"
+  },
+  "devDependencies": {
+    
+  },
+  "keywords": ["library", "narf"],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/divanvisagie/NARF"
+  },
+  "main": "./lib/narf",
+  "engines": { "node": ">= 0.8.10" }
+}
