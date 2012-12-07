@@ -11,6 +11,10 @@ The idea with NARF is that all you have to do for GET and POST is put the functi
 
 	npm install narf
 
+If you want command line functionality then the following is suggested:
+
+	sudo npm install -g narf
+
 ### Setup
 
 To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
