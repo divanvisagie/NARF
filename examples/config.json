@@ -1,6 +1,6 @@
 {
   "debug" : true,
-  "port" : 8081,
+  "port" : "auto",
   "auto_port_min" : 8000,
   "auto_port_max" : 8100,
 

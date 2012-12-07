@@ -1,5 +1,5 @@
 NARF TODOS
 
-- Add web socket support
-- Improve documentation
-- Create installable node package
+- 
+- Look into resolving issues with websockets in windows
+- SPDY implementation

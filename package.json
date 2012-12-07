@@ -1,7 +1,7 @@
 {
   "name": "narf",
   "description": "narf server library",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "author": "Divan Visagie <visagiedivan@gmail.com>",
   "contributors": [ 
     { "name": "Divan Visagie", "email": "visagiedivan@gmail.com" }
@@ -13,7 +13,8 @@
     "events": ">= 0.5.0",
     "fs": ">= 0.0.0",
     "http": ">= 0.0.0",
-    "url": ">= 0.0.0"  
+    "url": ">= 0.0.0",
+    "colors" : ">= 0.6.0"  
   },
   "devDependencies": {
     
@@ -24,5 +25,9 @@
     "url": "git://github.com/divanvisagie/NARF"
   },
   "main": "./lib/narf",
+  "preferGlobal": "true",
+  "bin": {
+    "narf" : "./lib/narfconfig.js"
+  },
   "engines": { "node": ">= 0.8.4" }
 }

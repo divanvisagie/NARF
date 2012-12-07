@@ -1,6 +1,11 @@
-var narf = require( '../lib/narf' );
+var narf = require( 'narf' );
 
-narf.configure( require( './config' ) );
+
+/* Setting configs example */
+narf.configure( {
+
+	"port" : "auto"
+} );
 
 var APIFunctions = { //forward facing functions
 
@@ -21,38 +26,29 @@ var APIFunctions = { //forward facing functions
 	}
 };
 
-var httpServer = narf.startHTTPServer( APIFunctions );
+/* Starting an http server and then attaching a socket server */
+narf.startHTTPServer( APIFunctions, function( httpServer ){
+	
+	narf.startSocketServer( httpServer, function( request ){
 
-var SocketFunctions = {
+		var connection = request.accept( null, request.origin ); //accept the connection request
 
-	SocketFunction : {
+		connection.on( 'message', function( message ){ //the user has sent a message
 
-		loopBack : function( data ){
+			if ( message.type === 'utf8' ){
 
-		}
-	}
-};
+				console.log( message ); //process
 
-narf.startSocketServer( httpServer, function( request ){
+				if( typeof message === 'string' ) message = JSON.parse( message );
 
-	var connection = request.accept( null, request.origin ); //accept the connection request
+				connection.send( JSON.stringify({ message : 'hello client' }) );
+			}
+		} );
 
-	connection.on( 'message', function( message ){ //the user has sent a message
-
-		if ( message.type === 'utf8' ){
-
-			console.log( message ); //process
-
-			if( typeof message === 'string' ) message = JSON.parse( message );
-
-			connection.send( JSON.stringify({ message : 'hello client' }) );
-		}
+		connection.on( 'close', function( connection ){ //The user has closed the connection
+			
+			console.log( 'Client closed connection' );
+		} );
 
 	} );
-
-	connection.on( 'close', function( connection ){ //The user has closed the connection
-		
-		console.log( 'Client closed connection' );
-	} );
-
 } );
