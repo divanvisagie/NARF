@@ -19,9 +19,13 @@ If you want command line functionality then the following is suggested:
 
 To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
 
+### Functions
+
 ### Example 
 
-Below is an example of a simple narf server, in just these few lines , you can get a server running with GET and POST functionality:
+#### HTTP Server
+
+Below is an example of a simple narf HTTP server, in just these few lines , you can get a server running with GET and POST functionality:
 
 	var narf = require( 'narf' );
 
@@ -45,45 +49,70 @@ Below is an example of a simple narf server, in just these few lines , you can g
 	};
 
 	narf.startHTTPServer( APIFunctions );
+	
+#### Sockets 
 
-If you want to add socket functionality to your HTTP server , pass a callback function to hanle it as follows:
+If you want to add socket functionality to your HTTP server , pass a callback function to handle it as follows:
 
 	narf.startHTTPServer( APIFunctions, function( httpServer ){
 	
-		narf.startSocketServer( httpServer, function( request ){
+		narf.startSocketServer( httpServer, function( request ){ ... } );
+	} );
+First the HTTP server is passed to the callback function in startHTTPServer(). Then the request in the socket server is passed to the callback function in startSocketServer() , from there , you have control to accept the request 
+and do the rest of the processing.
 
-			var connection = request.accept( null, request.origin ); //accept the connection request
 
-			connection.on( 'message', function( message ){ //the user has sent a message
+There are two types of socket servers 
 
-				if ( message.type === 'utf8' ){
+	narf.startSocketServer( httpserver, function( request ){ ... } )
 
-					console.log( message ); //process
+and 
 
-					if( typeof message === 'string' ) message = JSON.parse( message );
+	narf.narfSocketServer( httpServer, SocketFunctions, function( request ){ ... } )
 
-					connection.send( JSON.stringify({ message : 'hello client' }) );
+narf.startSocketServer() creates a socket server and then responsibility is passed on you.
+
+narf.narfSocketServer() however is similar to startHTTPServer in that you pass a set of public functions
+that will be exposed to the client, the example below is a socket server that updates a text field on all clients:
+
+	var narf = require( 'narf' );
+	
+	/* Starting an http server and then attaching a socket server */
+	narf.startHTTPServer( null, function( httpServer ){
+		
+		var SocketFunctions = {
+	
+			sendToClients : function( messageData ){
+	
+				if( messageData.message ){
+	
+					narf.getConnectedClients().forEach( function( connection ){
+	
+						connection.send( JSON.stringify( { message : messageData.message } ) );
+					});
+
+				}else{
+	
+					console.log( 'There was no message' );
+					connection.send( JSON.stringify( { message : ' ' } ) );
 				}
-			} );
-
-			connection.on( 'close', function( connection ){ //The user has closed the connection
-				
-				console.log( 'Client closed connection' );
-			} );
-
+			}
+		};
+	
+		narf.narfSocketServer( httpServer, SocketFunctions, function( request ){
+			return true;
 		} );
 	} );
 
+You can fetch a list of connected clients by calling:
 
-First the HTTP server is passed to the callback function in startHTTPServer(). Then the request in the socket server is passed to the callback function in startSocketServer() , from there , you have control to accept the request 
-and do the rest of the processing.
+	narf.getConnectedClients()
 
 ### Example.js
 
 An example of narf implementation can be found in examples/example.js:
 
 	var narf = require( 'narf' );
-
 
 	/* Setting configs example */
 	narf.configure( {
@@ -225,6 +254,10 @@ Portastic allows automatic port assignment for NARF
 Websocket allows for , well websocket support
 
 	npm install websocket
+
+## Compatibility
+
+NARF is tested under OSX and but should run smoothly on any Linux or UNIX like system. You may have an Issue getting Websockets to work on a windows machine. 
 
 ## License 
 

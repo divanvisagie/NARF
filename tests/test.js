@@ -1,118 +1,122 @@
-var hostname = 'localhost';
+exports.performTest = function(){
 
-console.time('done');
+	var hostname = 'localhost';
 
-var http = require( 'http' );
+	console.time('done');
 
-function performRequest( method ){
+	var http = require( 'http' );
 
-	var testObject = {
+	function performRequest( method ){
+
+		var testObject = {
+
+			'testText' : 'here is some text',
+			'testNumber' : 1001001
+		};
+
+		var userString = JSON.stringify(testObject);
+
+		var headers = {
+
+			'Content-Type' : 'text/json',
+			'Content-Length' : userString.length,
+			'serverfunction' : 'loopBack'
+		};
+
+		var options = {
+			host: hostname,
+			port: 8080,
+			method: 'POST',
+			headers: headers
+		};
+
+		options.method = method || 'POST';
+
+		var req = http.request( options, function ( res ) {
+
+			res.setEncoding('utf-8');
+
+			var responseString = '';
+
+			res.on('data', function(data) {
+				responseString += data;
+			});
+
+			res.on('end', function() {
+				var resultObject = JSON.parse(responseString);
+
+				console.log( '\n' + method + ' object returned :' );
+				console.log(responseString);
+
+			} );
+		});
+
+		req.write(userString);
+		req.end();
+	}
+
+	function nukeTest(){
+
+		var testObject = {
 
 		'testText' : 'here is some text',
 		'testNumber' : 1001001
-	};
+		};
 
-	var userString = JSON.stringify(testObject);
+		//build some massive data
+		testObject.nukeData = '';
 
-	var headers = {
+		while (testObject.nukeData.length < 1e7)
+			testObject.nukeData += 'a';
 
-		'Content-Type' : 'text/json',
-		'Content-Length' : userString.length,
-		'serverfunction' : 'loopBack'
-	};
+		var userString = JSON.stringify(testObject);
 
-	var options = {
-		host: hostname,
-		port: 8080,
-		method: 'POST',
-		headers: headers
-	};
+		var headers = {
 
-	options.method = method || 'POST';
+			'Content-Type' : 'text/json',
+			'Content-Length' : userString.length,
+			'serverfunction' : 'loopBack'
+		};
 
-	var req = http.request( options, function ( res ) {
+		var options = {
+			host: hostname,
+			port: 8080,
+			method: 'POST',
+			headers: headers
+		};
 
-		res.setEncoding('utf-8');
+		options.method = 'POST';
 
-		var responseString = '';
 
-		res.on('data', function(data) {
-			responseString += data;
-		});
+		var req = http.request( options, function ( res ) {
+			res.setEncoding('utf-8');
 
-		res.on('end', function() {
-			var resultObject = JSON.parse(responseString);
+			var responseString = '';
 
-			console.log( '\n' + method + ' object returned :' );
-			console.log(responseString);
+			res.on('data', function(data) {
 
-		} );
-	});
+				responseString += data;
+			});
 
-	req.write(userString);
-	req.end();
-}
+			res.on('end', function() {
 
-function nukeTest(){
+				var resultObject = JSON.parse( responseString );
 
-	var testObject = {
+				console.log( '\n' + 'Nuke test' + ' object returned :' );
+				console.log( responseString );
 
-	'testText' : 'here is some text',
-	'testNumber' : 1001001
-	};
-
-	//build some massive data
-	testObject.nukeData = '';
-
-	while (testObject.nukeData.length < 1e7)
-		testObject.nukeData += 'a';
-
-	var userString = JSON.stringify(testObject);
-
-	var headers = {
-
-		'Content-Type' : 'text/json',
-		'Content-Length' : userString.length,
-		'serverfunction' : 'loopBack'
-	};
-
-	var options = {
-		host: hostname,
-		port: 8080,
-		method: 'POST',
-		headers: headers
-	};
-
-	options.method = 'POST';
-
-	var req = http.request( options, function ( res ) {
-		res.setEncoding('utf-8');
-
-		var responseString = '';
-
-		res.on('data', function(data) {
-
-			responseString += data;
-		});
-
-		res.on('end', function() {
-
-			var resultObject = JSON.parse( responseString );
-
-			console.log( '\n' + 'Nuke test' + ' object returned :' );
-			console.log( responseString );
+			});
 
 		});
 
-	});
+		req.write( userString );
+		req.end();
+	}
 
-	req.write( userString );
-	req.end();
-}
+	performRequest( 'POST' );
+	performRequest( 'GET' );
+	nukeTest();
 
-performRequest( 'POST' );
-performRequest( 'GET' );
-nukeTest();
-
-console.timeEnd('done');
+	console.timeEnd('done');
+};
 

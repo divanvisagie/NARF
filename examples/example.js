@@ -4,7 +4,7 @@ var narf = require( 'narf' );
 /* Setting configs example */
 narf.configure( {
 
-	"port" : "auto"
+	"port" : 8080
 } );
 
 var APIFunctions = { //forward facing functions
@@ -32,7 +32,6 @@ narf.startHTTPServer( APIFunctions, function( httpServer ){
 	narf.startSocketServer( httpServer, function( request ){
 
 		var connection = request.accept( null, request.origin ); //accept the connection request
-
 		connection.on( 'message', function( message ){ //the user has sent a message
 
 			if ( message.type === 'utf8' ){

@@ -1,5 +1,7 @@
 NARF TODOS
 
-- 
+- Remove deprication warning
+- Abstract Sockets
+- Simplify Documentation
 - Look into resolving issues with websockets in windows
 - SPDY implementation
