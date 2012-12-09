@@ -15,7 +15,6 @@ narf.startHTTPServer( null, function( httpServer ){
 				});
 			}else{
 
-				console.log( 'There was no message' );
 				connection.send( JSON.stringify( { message : ' ' } ) );
 			}
 		}
