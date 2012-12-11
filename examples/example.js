@@ -1,11 +1,6 @@
-var narf = require( 'narf' );
+var narf = require( '../lib/narf' );
+var q = require( 'q' );
 
-
-/* Setting configs example */
-narf.configure( {
-
-	"port" : 8080
-} );
 
 var APIFunctions = { //forward facing functions
 
@@ -26,28 +21,35 @@ var APIFunctions = { //forward facing functions
 	}
 };
 
-/* Starting an http server and then attaching a socket server */
-narf.startHTTPServer( APIFunctions, function( httpServer ){
-	
-	narf.startSocketServer( httpServer, function( request ){
+var socketFunctions = {
 
-		var connection = request.accept( null, request.origin ); //accept the connection request
-		connection.on( 'message', function( message ){ //the user has sent a message
+	updateAll : function( messageData ){
 
-			if ( message.type === 'utf8' ){
+		console.log( messageData );
+	}
+};
 
-				console.log( message ); //process
+function connectionHandler( request ){
 
-				if( typeof message === 'string' ) message = JSON.parse( message );
+	return true;
+}
 
-				connection.send( JSON.stringify({ message : 'hello client' }) );
-			}
-		} );
+/* Setting configs example */
+narf.configure( {
 
-		connection.on( 'close', function( connection ){ //The user has closed the connection
-			
-			console.log( 'Client closed connection' );
-		} );
+	"port" : 8080
 
+} ).then( function( v ){
+
+	console.log( v );
+
+	/* Starting an http server and then attaching a socket server */
+	narf.startHTTPServer( APIFunctions ,function( httpServer ){
+		
+		narf.narfSocketServer( socketFunctions, connectionHandler );
 	} );
+
+
 } );
+
+

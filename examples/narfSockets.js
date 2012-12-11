@@ -1,26 +1,48 @@
 var narf = require( '../lib/narf' );
 
-/* Starting an http server and then attaching a socket server */
-narf.startHTTPServer( null, function( httpServer ){
-	
-	var SocketFunctions = {
+var APIFunctions = {
 
-		sendToClients : function( messageData ){
+	GET : {
 
-			if( messageData.message ){
+		loopBack : function ( headers, url ){
 
-				narf.getConnectedClients().forEach( function( connection ){
-
-					connection.send( JSON.stringify( { message : messageData.message } ) );
-				});
-			}else{
-
-				connection.send( JSON.stringify( { message : ' ' } ) );
-			}
+			return { 'headers' : headers, 'url' : url };
 		}
-	};
+	}
+};
 
-	narf.narfSocketServer( httpServer, SocketFunctions, function( request ){
-		return true;
-	} );
-} );
+
+var SocketFunctions = {
+
+	updateAll : function( messageData, conn ){
+
+		if( messageData.message ){
+
+			narf.getConnectedClients().forEach( function( connection ){
+				
+				if (conn != connection)
+					connection.send( JSON.stringify( { message : messageData.message } ) );
+			});
+
+		}else{
+
+			connection.send( JSON.stringify( { message : '' } ) );
+		}
+	}
+};
+
+function connectionHandler( request ){
+
+	return true;
+}
+
+narf.configure( {
+
+	"port" : 8080
+
+} ).then( narf.startHTTPServer( APIFunctions , function(){
+
+	narf.narfSocketServer( SocketFunctions, connectionHandler );
+
+} ) );
+

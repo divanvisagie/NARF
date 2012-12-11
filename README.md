@@ -21,6 +21,14 @@ To create a narf server all you need is to create an object with your GET and PO
 
 ### Functions
 
+	narf.configure()
+
+	narf.startHTTPServer()
+
+	narf.startSocketServer()
+
+	narf.narfSocketServer()
+
 ### Example 
 
 #### HTTP Server
@@ -73,7 +81,7 @@ and
 narf.startSocketServer() creates a socket server and then responsibility is passed on you.
 
 narf.narfSocketServer() however is similar to startHTTPServer in that you pass a set of public functions
-that will be exposed to the client, the example below is a socket server that updates a text field on all clients:
+that will be exposed to the client, a parsed message data object and the connection are passed to these functions, the example below is a socket server that updates a text field on all clients:
 
 	var narf = require( 'narf' );
 	
@@ -81,20 +89,19 @@ that will be exposed to the client, the example below is a socket server that up
 	narf.startHTTPServer( null, function( httpServer ){
 		
 		var SocketFunctions = {
-	
-			sendToClients : function( messageData ){
-	
+
+			updateAll : function( messageData, conn ){
+
 				if( messageData.message ){
-	
+
 					narf.getConnectedClients().forEach( function( connection ){
-	
-						connection.send( JSON.stringify( { message : messageData.message } ) );
+						
+						if (conn != connection)
+							connection.send( JSON.stringify( { message : messageData.message } ) );
 					});
 
 				}else{
-	
-					console.log( 'There was no message' );
-					connection.send( JSON.stringify( { message : ' ' } ) );
+					connection.send( JSON.stringify( { message : '' } ) );
 				}
 			}
 		};
@@ -110,61 +117,53 @@ You can fetch a list of connected clients by calling:
 
 ### Example.js
 
-An example of narf implementation can be found in examples/example.js:
+Examples of narf implementation can be found in examples/
 
 	var narf = require( 'narf' );
 
-	/* Setting configs example */
-	narf.configure( {
+	var APIFunctions = {
 
-		"port" : "auto"
-	} );
+		GET : {
 
-	var APIFunctions = { //forward facing functions
+			loopBack : function ( headers, url ){
 
-		GET : {  //headers object and parsed url are passed as a parameter for get functions
-
-			loopBack : function( headers, url ){
-					
-				return { 'headers' : headers, 'parsedURL' : url };
-			}
-		},
-
-		POST : {  //post body is passed as a parameter for POST functions
-
-			loopBack : function( body ){
-
-				return body;
+				return { 'headers' : headers, 'url' : url };
 			}
 		}
 	};
 
-	/* Starting an http server and then attaching a socket server */
-	narf.startHTTPServer( APIFunctions, function( httpServer ){
-		
-		narf.startSocketServer( httpServer, function( request ){
 
-			var connection = request.accept( null, request.origin ); //accept the connection request
+	var SocketFunctions = {
 
-			connection.on( 'message', function( message ){ //the user has sent a message
+		updateAll : function( messageData ){
 
-				if ( message.type === 'utf8' ){
+			if( messageData.message ){
 
-					console.log( message ); //process
+				narf.getConnectedClients().forEach( function( connection ){
 
-					if( typeof message === 'string' ) message = JSON.parse( message );
+					connection.send( JSON.stringify( { message : messageData.message } ) );
+				});
+			}else{
+				connection.send( JSON.stringify( { message : '' } ) );
+			}
+		}
+	};
 
-					connection.send( JSON.stringify({ message : 'hello client' }) );
-				}
-			} );
+	function connectionHandler( request ){
 
-			connection.on( 'close', function( connection ){ //The user has closed the connection
-				
-				console.log( 'Client closed connection' );
-			} );
+		return true;
+	}
 
-		} );
-	} );
+	narf.configure( {
+
+		"port" : 8080
+
+	} ).then( narf.startHTTPServer( APIFunctions , function(){
+
+		narf.narfSocketServer( SocketFunctions, connectionHandler );
+
+	} ) );
+
 
 ### POST Body Limit
 
@@ -207,7 +206,11 @@ or just resetting the values you wish to change:
 	narf.configure( {
 
 		"port" : "auto"
-	} );
+
+	} ).then( ... );
+
+Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
+asynchronous nature of javascript. 
 
 You can also generate a config file by typing the following into your terminal:
 	
