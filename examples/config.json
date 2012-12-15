@@ -10,9 +10,5 @@
 
   "limit_post_size" : true,
   "post_size_limit" : 1e6,
-  "url_selection" : true,
-  "default_return" : { 
-
-  		"result" : "succeeded"
-   }
+  "url_selection" : true
 }

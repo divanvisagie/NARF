@@ -39,19 +39,19 @@ Below is an example of a simple narf HTTP server, in just these few lines , you 
 
 	var APIFunctions = {
 
-		GET : {  //headers object and parsed url are passed as a parameter for get functions
+		GET : {  //headers object, parsed url and return callback are passed as a parameter for get functions
 
-			loopBack : function( headers, url ){
+			loopBack : function( headers, url, ret ){
 					
-				return { 'headers' : headers, 'parsedURL' : url };
+				ret( { 'headers' : headers, 'parsedURL' : url } );
 			}
 		},
 
 		POST : {  //post body is passed as a parameter for POST functions
 
-			loopBack : function( body ){
+			loopBack : function( body, url, ret ){
 
-				return body;
+				ret( body );
 			}
 		}
 	};
