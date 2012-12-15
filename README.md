@@ -3,7 +3,7 @@ NARF
 
 Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.
 
-The idea with NARF is that all you have to do for GET and POST is put the functions you want exposed in a particular object and everything else will be handled for you.
+The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.
 
 ## Usage
 
@@ -19,7 +19,7 @@ If you want command line functionality then the following is suggested:
 
 To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
 
-### Functions
+## Functions
 
 	narf.configure()
 
@@ -29,9 +29,62 @@ To create a narf server all you need is to create an object with your GET and PO
 
 	narf.narfSocketServer()
 
-### Example 
 
-#### HTTP Server
+## Configuration:
+### narf.configure()
+
+The default configuration for the server is located in lib/config.json and looks like the following:
+
+    {
+
+	  "debug" : true,
+	  "port" : "auto",
+	  "auto_port_min" : 8000,
+	  "auto_port_max" : 8100,
+
+	  "https" : false,
+	  "key_path" : "./key.pem",
+	  "cert_path" : "./cert.pem",
+
+	  "limit_post_size" : true,
+	  "post_size_limit" : 1e6,
+	  "url_selection" : true,
+
+	}
+    
+By defualt it covers the server port , a post 
+body size limit and an option to remove the limit as well as a bool value to determine if the client should
+be able to select serverfunction via the url.
+
+You can modiy the configuration using narf.configure() by loading another configuration file :
+
+	narf.configure( require( './config' ) );
+
+or just resetting the values you wish to change:
+
+	narf.configure( {
+
+		"port" : "auto"
+
+	} ).then( ... );
+
+Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
+asynchronous nature of javascript. 
+
+You can also generate a config file by typing the following into your terminal:
+	
+	narf configure
+
+or:
+
+	narf -c
+
+#### port
+
+The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.
+
+## HTTP Server
+### narf.startHTTPServer()
 
 Below is an example of a simple narf HTTP server, in just these few lines , you can get a server running with GET and POST functionality:
 
@@ -58,7 +111,8 @@ Below is an example of a simple narf HTTP server, in just these few lines , you 
 
 	narf.startHTTPServer( APIFunctions );
 	
-#### Sockets 
+## Sockets 
+### narf.startSocketServer() / narf.narfScoketServer()
 
 If you want to add socket functionality to your HTTP server , pass a callback function to handle it as follows:
 
@@ -115,7 +169,7 @@ You can fetch a list of connected clients by calling:
 
 	narf.getConnectedClients()
 
-### Example.js
+## Example.js
 
 Examples of narf implementation can be found in examples/
 
@@ -125,9 +179,9 @@ Examples of narf implementation can be found in examples/
 
 		GET : {
 
-			loopBack : function ( headers, url ){
+			loopBack : function ( headers, url, ret ){
 
-				return { 'headers' : headers, 'url' : url };
+				ret( { 'headers' : headers, 'url' : url } );
 			}
 		}
 	};
@@ -165,66 +219,14 @@ Examples of narf implementation can be found in examples/
 	} ) );
 
 
+## Configurable Functionality
+
 ### POST Body Limit
 
 By default POST will only accept data shorter than 1e6 in length for security purposes , this
 constraint may be modified or disabled in lib/config.json
 
-## Configuration
-
-The default configuration for the server is located in lib/config.json and looks like the following:
-
-	{
-
-	  "debug" : true,
-	  "port" : "auto",
-	  "auto_port_min" : 8000,
-	  "auto_port_max" : 8100,
-
-	  "https" : false,
-	  "key_path" : "./key.pem",
-	  "cert_path" : "./cert.pem",
-
-	  "limit_post_size" : true,
-	  "post_size_limit" : 1e6,
-	  "url_selection" : true,
-	  "default_return" : { 
-
-	  		"result" : "succeeded"
-	   }
-	}
-By defualt it covers the server port , a post 
-body size limit and an option to remove the limit as well as a bool value to determine if the client should
-be able to select serverfunction via the url.
-
-You can modiy the configuration using narf.configure() by loading another configuration file :
-
-	narf.configure( require( './config' ) );
-
-or just resetting the values you wish to change:
-
-	narf.configure( {
-
-		"port" : "auto"
-
-	} ).then( ... );
-
-Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
-asynchronous nature of javascript. 
-
-You can also generate a config file by typing the following into your terminal:
-	
-	narf configure
-
-or:
-
-	narf -c
-
-### port
-
-The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.
-
-## HTTPS
+### HTTPS
 
 HTTPS is switched off by default in the config due to its requirements, if you wish to switch it on you will need to provide the relative paths to your key and certificate files.
 
@@ -233,8 +235,9 @@ If you want to create your own files for testing you can run generate_cert.sh( o
 to generate a generate_cert.sh file run the following command:
 
 	narf generate
-or 
-	narf -g
+or:
+
+    narf -g
 
 ## Testing
 
@@ -244,23 +247,9 @@ There is a simple test located in the tests directory , to run:
 
 This is a simple client to check if the server is working properly.
 
-## Dependancies
-
-### Portastic
-
-Portastic allows automatic port assignment for NARF
-
-	npm install portastic
-
-### Websocket
-
-Websocket allows for , well websocket support
-
-	npm install websocket
-
 ## Compatibility
 
-NARF is tested under OSX and but should run smoothly on any Linux or UNIX like system. You may have an Issue getting Websockets to work on a windows machine. 
+NARF is only tested under OSX but should run smoothly on other platforms
 
 ## License 
 
