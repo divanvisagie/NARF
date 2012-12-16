@@ -33,12 +33,13 @@ var SocketFunctions = {
 
 function connectionHandler( request ){
 
+	console.log( 'connections open: ' +  narf.getConnectedClients().length );
 	return true;
 }
 
 narf.configure( {
 
-	"port" : 8080
+	port : 8080
 
 } ).then( narf.startHTTPServer( APIFunctions , function(){
 
