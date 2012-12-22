@@ -1,122 +1,119 @@
-exports.performTest = function(){
 
-	var hostname = 'localhost';
+var hostname = 'localhost';
 
-	console.time('done');
+console.time('done');
 
-	var http = require( 'http' );
+var http = require( 'http' );
 
-	function performRequest( method ){
+function performRequest( method ){
 
-		var testObject = {
-
-			'testText' : 'here is some text',
-			'testNumber' : 1001001
-		};
-
-		var userString = JSON.stringify(testObject);
-
-		var headers = {
-
-			'Content-Type' : 'text/json',
-			'Content-Length' : userString.length,
-			'serverfunction' : 'loopBack'
-		};
-
-		var options = {
-			host: hostname,
-			port: 8080,
-			method: 'POST',
-			headers: headers
-		};
-
-		options.method = method || 'POST';
-
-		var req = http.request( options, function ( res ) {
-
-			res.setEncoding('utf-8');
-
-			var responseString = '';
-
-			res.on('data', function(data) {
-				responseString += data;
-			});
-
-			res.on('end', function() {
-				var resultObject = JSON.parse(responseString);
-
-				console.log( '\n' + method + ' object returned :' );
-				console.log(responseString);
-
-			} );
-		});
-
-		req.write(userString);
-		req.end();
-	}
-
-	function nukeTest(){
-
-		var testObject = {
+	var testObject = {
 
 		'testText' : 'here is some text',
 		'testNumber' : 1001001
-		};
+	};
 
-		//build some massive data
-		testObject.nukeData = '';
+	var userString = JSON.stringify(testObject);
 
-		while (testObject.nukeData.length < 1e7)
-			testObject.nukeData += 'a';
+	var headers = {
 
-		var userString = JSON.stringify(testObject);
+		'Content-Type' : 'text/json',
+		'Content-Length' : userString.length,
+		'serverfunction' : 'loopBack'
+	};
 
-		var headers = {
+	var options = {
+		host: hostname,
+		port: 8080,
+		method: 'POST',
+		headers: headers
+	};
 
-			'Content-Type' : 'text/json',
-			'Content-Length' : userString.length,
-			'serverfunction' : 'loopBack'
-		};
+	options.method = method || 'POST';
 
-		var options = {
-			host: hostname,
-			port: 8080,
-			method: 'POST',
-			headers: headers
-		};
+	var req = http.request( options, function ( res ) {
 
-		options.method = 'POST';
+		res.setEncoding('utf-8');
+
+		var responseString = '';
+
+		res.on('data', function(data) {
+			responseString += data;
+		});
+
+		res.on('end', function() {
+			var resultObject = JSON.parse(responseString);
+
+			console.log( '\n' + method + ' object returned :' );
+			console.log(responseString);
+
+		} );
+	});
+
+	req.write(userString);
+	req.end();
+}
+
+function nukeTest(){
+
+	var testObject = {
+
+	'testText' : 'here is some text',
+	'testNumber' : 1001001
+	};
+
+	//build some massive data
+	testObject.nukeData = '';
+
+	while (testObject.nukeData.length < 1e7)
+		testObject.nukeData += 'a';
+
+	var userString = JSON.stringify(testObject);
+
+	var headers = {
+
+		'Content-Type' : 'text/json',
+		'Content-Length' : userString.length,
+		'serverfunction' : 'loopBack'
+	};
+
+	var options = {
+		host: hostname,
+		port: 8080,
+		method: 'POST',
+		headers: headers
+	};
+
+	options.method = 'POST';
 
 
-		var req = http.request( options, function ( res ) {
-			res.setEncoding('utf-8');
+	var req = http.request( options, function ( res ) {
+		res.setEncoding('utf-8');
 
-			var responseString = '';
+		var responseString = '';
 
-			res.on('data', function(data) {
+		res.on('data', function(data) {
 
-				responseString += data;
-			});
+			responseString += data;
+		});
 
-			res.on('end', function() {
+		res.on('end', function() {
 
-				var resultObject = JSON.parse( responseString );
+			var resultObject = JSON.parse( responseString );
 
-				console.log( '\n' + 'Nuke test' + ' object returned :' );
-				console.log( responseString );
-
-			});
+			console.log( '\n' + 'Nuke test' + ' object returned :' );
+			console.log( responseString );
 
 		});
 
-		req.write( userString );
-		req.end();
-	}
+	});
 
-	performRequest( 'POST' );
-	performRequest( 'GET' );
-	nukeTest();
+	req.write( userString );
+	req.end();
+}
 
-	console.timeEnd('done');
-};
+performRequest( 'POST' );
+performRequest( 'GET' );
+nukeTest();
 
+console.timeEnd('done');

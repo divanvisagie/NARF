@@ -1,0 +1,22 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node', '/usr/local/bin/npm', 'test', 'narf' ]
+2 info using npm@1.1.45
+3 info using node@v0.8.4
+4 verbose config file /Users/divanvisagie/.npmrc
+5 verbose config file /usr/local/etc/npmrc
+6 verbose config file /usr/local/lib/node_modules/npm/npmrc
+7 verbose read json /Users/divanvisagie/Documents/Projects/GitHub/NARF/node_modules/narf/package.json
+8 error Error: ENOENT, open '/Users/divanvisagie/Documents/Projects/GitHub/NARF/node_modules/narf/package.json'
+9 error If you need help, you may report this log at:
+9 error     <http://github.com/isaacs/npm/issues>
+9 error or email it to:
+9 error     <npm-@googlegroups.com>
+10 error System Darwin 12.2.0
+11 error command "node" "/usr/local/bin/npm" "test" "narf"
+12 error cwd /Users/divanvisagie/Documents/Projects/GitHub/NARF
+13 error node -v v0.8.4
+14 error npm -v 1.1.45
+15 error path /Users/divanvisagie/Documents/Projects/GitHub/NARF/node_modules/narf/package.json
+16 error code ENOENT
+17 error errno 34
+18 verbose exit [ 34, true ]
