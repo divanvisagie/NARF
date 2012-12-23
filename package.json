@@ -20,7 +20,7 @@
   "devDependencies": {
     
   },
-  "keywords": ["library", "narf"],
+  "keywords": [ "library", "narf" ],
   "repository": {
     "type": "git",
     "url": "git://github.com/divanvisagie/NARF"
