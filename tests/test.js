@@ -3,7 +3,7 @@ var hostname = 'localhost';
 
 var http = require( 'http' ),
 	colors = require( 'colors' ),
-	EventEmmiter = require( 'events' ).EventEmmiter,
+	events = require( 'events' ),
 	sys = require( 'sys' ),
 	q = require( 'q' );
 
@@ -49,8 +49,8 @@ function performRequest( method ){
 		res.on('end', function() {
 			var resultObject = JSON.parse(responseString);
 
-			console.log( '\n' + method + ' object returned :' );
-			console.log(responseString);
+			
+			//console.log(responseString);
 
 			if ( method === 'POST' ){
 				if ( responseString === '{"testText":"here is some text","testNumber":1001001}' )
@@ -76,6 +76,8 @@ function performRequest( method ){
 }
 
 function nukeTest(){
+
+	var deferred = q.defer();
 
 	var testObject = {
 
@@ -122,54 +124,154 @@ function nukeTest(){
 
 			var resultObject = JSON.parse( responseString );
 
-			console.log( '\n' + 'Nuke test' + ' object returned :' );
-			console.log( responseString );
+			//console.log( responseString );
 
+			if( responseString === '{"error":"Data was larger than the specified limit ,this is viewed as suspicious activity"}' )
+				deferred.resolve( true );
+			else
+				deferred.resolve( false );
 		});
 
 	});
 
 	req.write( userString );
 	req.end();
+
+
+	return deferred.promise;
 }
 
+/*Test web socket functionality*/
+function socketTest(){
 
-// nukeTest();
+	var deferred = q.defer();
+	var WebSocketClient = require( 'websocket' ).client;
+
+	var client = new WebSocketClient();
+
+
+	client.on( 'connectFailed', function( error ){
+
+		console.log( 'Connection error: '.red + error.red);
+		deferred.resolve( false );
+	});
+
+	client.on( 'connect', function( connection ){
+
+		console.log( 'Websocket client connected' );
+		connection.on( 'error', function( error ){
+
+			console.log('Connection error: ' + error.toString() );
+			deferred.resolve( false );
+		} );
+
+		connection.on( 'close', function(){
+
+			console.log('echo-protocol Connection Closed');
+		} );
+
+		connection.on( 'message', function( message ){
+
+			if (message.type === 'utf8') {
+				//console.log("Received: '" + message.utf8Data + "'");
+				if ( message.utf8Data === '{"message":"test message"}' )
+					deferred.resolve( true );
+				else
+					deferred.resolve( false );
+			}
+		} );
+
+		function sendMessage(){
+
+			if (connection.connected) {
+	
+				var obj = JSON.stringify( { serverfunction : 'loopBack', message : 'test message' } );
+				connection.sendUTF( obj );
+			}
+		}
+
+		sendMessage();
+
+
+	} );
+
+	client.connect('ws://localhost:8080/', 'echo-protocol');
+	
+	return deferred.promise;
+}
+
 
 
 /* Start unit Tests*/
-
-console.log( EventEmmiter );
 function startTest(){
 
-	events.EventEmmiter.call(this);
-	console.log( 'Testing GET' );
-	performRequest( 'GET' ).then( function( passed ){
+	var testCount = 4;
+	var testCountFlag = 0;
+	var testPassed = true;
 
-		console.log('GET test:');
-		console.log(passed ? 'passed'.cyan : 'failed'.red);
+	var e = new events.EventEmitter();
+
+	e.on( 'increment', function( val ){
+
+		testCountFlag += val;
+		if (testCountFlag >= testCount){
+
+			console.log( 'All tests completed.' );
+			e.emit( 'complete', testPassed );
+		}
 	} );
-	console.log( 'Testing POST' );
+
+	console.time('GET');
 	performRequest( 'GET' ).then( function( passed ){
 
-		console.log('POST test:');
+		console.timeEnd('GET');
+		console.log(passed ? 'passed'.cyan : 'failed'.red);
+
+		if (!passed) testPassed = passed;
+
+		e.emit('increment',1);
+	} );
+
+	console.time( 'POST' );
+	performRequest( 'POST' ).then( function( passed ){
+
+		console.timeEnd( 'POST' );
 		console.log(passed ? 'passed'.cyan : 'failed'.red);
 		
+		if (!passed) testPassed = passed;
+
+		e.emit( 'increment',1 );
 	} );
 
-	this.emit( 'complete' );
+	console.time( 'Nuke' );
+	nukeTest( ).then( function( passed ){
+
+		console.timeEnd( 'Nuke' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+		
+		e.emit('increment',1);
+	} );
+
+	console.time( 'Socket' );
+	socketTest( ).then( function( passed ){
+
+		console.timeEnd( 'Socket' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+		
+		e.emit( 'increment',1 );
+	} );
+
 	
+	return e;
 }
-sys.inherits( startTest ,new EventEmmiter() );
-
-
-
-var httpServer;
 
 function tearDown(){
 
-	console.log( 'Tear down was called' );
-	//httpServer.destroy();
+	process.exit();
 }
 
 /* Unit test Set up */
@@ -211,9 +313,9 @@ function setUp(){
 
 				narf.getConnectedClients().forEach( function( connection ){
 
-					if(conn !== connection)
-						connection.send( JSON.stringify( { message : messageData.message } ) );
+					connection.send( JSON.stringify( { message : messageData.message } ) );
 				});
+
 			}else{
 				connection.send( JSON.stringify( { message : '' } ) );
 			}
@@ -230,11 +332,10 @@ function setUp(){
 
 		port : 8080,
 		debug : true,
-		asc : true
+		asc : true,
+		socket_protocol : 'echo-protocol'
 
 	} ).then( narf.startHTTPServer( HTTPFunctions, function( hs ){
-
-		httpServer = hs;
 
 		narf.narfSocketServer( SocketFunctions, socketConnectionHandler );
 		deferred.resolve( 'Set up complete' );
@@ -246,8 +347,13 @@ function setUp(){
 
 console.time('done');
 
-setUp().then( startTest().on('complete', function ( arg ) {
-	tearDown();
-}  ) );
+setUp().then( startTest().on('complete', function ( passed ){
 
-console.timeEnd('done');
+	console.log( 'Unit test completion status:');
+	console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+	console.timeEnd('done');
+	tearDown();
+} ) );
+
+
