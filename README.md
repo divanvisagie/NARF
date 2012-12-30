@@ -1,8 +1,6 @@
 NARF 
 ====
 
-[![Build Status](https://api.travis-ci.org/divanvisagie/NARF.png?branch=master)](https://api.travis-ci.org/divanvisagie/NARF)
-
 Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.
 
 The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.
