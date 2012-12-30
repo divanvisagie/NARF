@@ -11,5 +11,6 @@
   "limit_post_size" : true,
   "post_size_limit" : 1e6,
   "url_selection" : true,
-  "asc" : true
+  "asc" : true,
+  "socket_protocol" : null
 }
