@@ -1,122 +1,360 @@
-exports.performTest = function(){
+#! /usr/bin/env node
 
-	var hostname = 'localhost';
+var hostname = 'localhost';
 
-	console.time('done');
+var http = require( 'http' ),
+	colors = require( 'colors' ),
+	events = require( 'events' ),
+	sys = require( 'sys' ),
+	q = require( 'q' );
 
-	var http = require( 'http' );
+function performRequest( method ){
 
-	function performRequest( method ){
+	var deferred = q.defer();
+	var toReturn;
 
-		var testObject = {
-
-			'testText' : 'here is some text',
-			'testNumber' : 1001001
-		};
-
-		var userString = JSON.stringify(testObject);
-
-		var headers = {
-
-			'Content-Type' : 'text/json',
-			'Content-Length' : userString.length,
-			'serverfunction' : 'loopBack'
-		};
-
-		var options = {
-			host: hostname,
-			port: 8080,
-			method: 'POST',
-			headers: headers
-		};
-
-		options.method = method || 'POST';
-
-		var req = http.request( options, function ( res ) {
-
-			res.setEncoding('utf-8');
-
-			var responseString = '';
-
-			res.on('data', function(data) {
-				responseString += data;
-			});
-
-			res.on('end', function() {
-				var resultObject = JSON.parse(responseString);
-
-				console.log( '\n' + method + ' object returned :' );
-				console.log(responseString);
-
-			} );
-		});
-
-		req.write(userString);
-		req.end();
-	}
-
-	function nukeTest(){
-
-		var testObject = {
+	var testObject = {
 
 		'testText' : 'here is some text',
 		'testNumber' : 1001001
-		};
+	};
 
-		//build some massive data
-		testObject.nukeData = '';
+	var userString = JSON.stringify( testObject );
 
-		while (testObject.nukeData.length < 1e7)
-			testObject.nukeData += 'a';
+	var headers = {
 
-		var userString = JSON.stringify(testObject);
+		'Content-Type' : 'text/json',
+		'Content-Length' : userString.length,
+		'serverfunction' : 'loopBack'
+	};
 
-		var headers = {
+	var options = {
 
-			'Content-Type' : 'text/json',
-			'Content-Length' : userString.length,
-			'serverfunction' : 'loopBack'
-		};
+		host: hostname,
+		port: 8080,
+		headers: headers
+	};
 
-		var options = {
-			host: hostname,
-			port: 8080,
-			method: 'POST',
-			headers: headers
-		};
+	options.method = method || 'POST';
 
-		options.method = 'POST';
+	var req = http.request( options, function ( res ) {
 
+		res.setEncoding('utf-8');
 
-		var req = http.request( options, function ( res ) {
-			res.setEncoding('utf-8');
+		var responseString = '';
 
-			var responseString = '';
-
-			res.on('data', function(data) {
-
-				responseString += data;
-			});
-
-			res.on('end', function() {
-
-				var resultObject = JSON.parse( responseString );
-
-				console.log( '\n' + 'Nuke test' + ' object returned :' );
-				console.log( responseString );
-
-			});
-
+		res.on('data', function(data) {
+			responseString += data;
 		});
 
-		req.write( userString );
-		req.end();
+		res.on('end', function() {
+			var resultObject = JSON.parse(responseString);
+
+			
+			//console.log(responseString);
+
+			if ( method === 'POST' ){
+				if ( responseString === '{"testText":"here is some text","testNumber":1001001}' )
+					toReturn = true;
+				else
+					toReturn = false;
+			}
+			else{
+				if ( responseString === '{"headers":{"content-type":"text/json","content-length":"53","serverfunction":"loopBack","host":"localhost:8080","connection":"keep-alive"},"url":{}}' )
+					toReturn = true;
+				else
+					toReturn = false;
+			}
+
+			deferred.resolve( toReturn );
+		} );
+	});
+
+	req.write(userString);
+	req.end();
+
+	return deferred.promise;
+}
+
+function nukeTest(){
+
+	var deferred = q.defer();
+
+	var testObject = {
+
+	'testText' : 'here is some text',
+	'testNumber' : 1001001
+	};
+
+	//build some massive data
+	testObject.nukeData = '';
+
+	while (testObject.nukeData.length < 1e7)
+		testObject.nukeData += 'a';
+
+	var userString = JSON.stringify(testObject);
+
+	var headers = {
+
+		'Content-Type' : 'text/json',
+		'Content-Length' : userString.length,
+		'serverfunction' : 'loopBack'
+	};
+
+	var options = {
+		host: hostname,
+		port: 8080,
+		method: 'POST',
+		headers: headers
+	};
+
+	options.method = 'POST';
+
+
+	var req = http.request( options, function ( res ) {
+		res.setEncoding('utf-8');
+
+		var responseString = '';
+
+		res.on('data', function(data) {
+
+			responseString += data;
+		});
+
+		res.on('end', function() {
+
+			var resultObject = JSON.parse( responseString );
+
+			//console.log( responseString );
+
+			if( responseString === '{"error":"Data was larger than the specified limit ,this is viewed as suspicious activity"}' )
+				deferred.resolve( true );
+			else
+				deferred.resolve( false );
+		});
+
+	});
+
+	req.write( userString );
+	req.end();
+
+
+	return deferred.promise;
+}
+
+/*Test web socket functionality*/
+function socketTest(){
+
+	var deferred = q.defer();
+	var WebSocketClient = require( 'websocket' ).client;
+
+	var client = new WebSocketClient();
+
+
+	client.on( 'connectFailed', function( error ){
+
+		console.log( 'Connection error: '.red + error.red);
+		deferred.resolve( false );
+	});
+
+	client.on( 'connect', function( connection ){
+
+		console.log( 'Websocket client connected' );
+		connection.on( 'error', function( error ){
+
+			console.log('Connection error: ' + error.toString() );
+			deferred.resolve( false );
+		} );
+
+		connection.on( 'close', function(){
+
+			console.log('echo-protocol Connection Closed');
+		} );
+
+		connection.on( 'message', function( message ){
+
+			if (message.type === 'utf8') {
+				//console.log("Received: '" + message.utf8Data + "'");
+				if ( message.utf8Data === '{"message":"test message"}' )
+					deferred.resolve( true );
+				else
+					deferred.resolve( false );
+			}
+		} );
+
+		function sendMessage(){
+
+			if (connection.connected) {
+	
+				var obj = JSON.stringify( { serverfunction : 'loopBack', message : 'test message' } );
+				connection.sendUTF( obj );
+			}
+		}
+
+		sendMessage();
+
+
+	} );
+
+	client.connect('ws://localhost:8080/', 'echo-protocol');
+	
+	return deferred.promise;
+}
+
+
+
+/* Start unit Tests*/
+function startTest(){
+
+	var testCount = 4;
+	var testCountFlag = 0;
+	var testPassed = true;
+
+	var e = new events.EventEmitter();
+
+	e.on( 'increment', function( val ){
+
+		testCountFlag += val;
+		if (testCountFlag >= testCount){
+
+			console.log( 'All tests completed.' );
+			e.emit( 'complete', testPassed );
+		}
+	} );
+
+	console.time('GET');
+	performRequest( 'GET' ).then( function( passed ){
+
+		console.timeEnd('GET');
+		console.log(passed ? 'passed'.cyan : 'failed'.red);
+
+		if (!passed) testPassed = passed;
+
+		e.emit('increment',1);
+	} );
+
+	console.time( 'POST' );
+	performRequest( 'POST' ).then( function( passed ){
+
+		console.timeEnd( 'POST' );
+		console.log(passed ? 'passed'.cyan : 'failed'.red);
+		
+		if (!passed) testPassed = passed;
+
+		e.emit( 'increment',1 );
+	} );
+
+	console.time( 'Nuke' );
+	nukeTest( ).then( function( passed ){
+
+		console.timeEnd( 'Nuke' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+		
+		e.emit('increment',1);
+	} );
+
+	console.time( 'Socket' );
+	socketTest( ).then( function( passed ){
+
+		console.timeEnd( 'Socket' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+		
+		e.emit( 'increment',1 );
+	} );
+
+	
+	return e;
+}
+
+function tearDown(){
+
+	process.exit();
+}
+
+/* Unit test Set up */
+function setUp(){
+
+	var deferred = q.defer();
+	/* Create socket and http functions*/
+	var narf = require('../lib/narf');
+
+	var HTTPFunctions = {
+
+		GET : {
+			loopBack : function( headers, url, ret ){
+
+				var obj = {};
+				obj.headers = headers;
+				obj.url = url;
+
+				ret( obj );
+			}
+		},
+
+		POST : {
+			loopBack : function( body, url, ret ){
+
+				console.log('server received object');
+				console.log( body );
+				
+				ret( body );
+			}
+		}
+	};
+
+	var SocketFunctions = {
+
+		loopBack : function( messageData, conn ){
+
+			if( messageData.message ){
+
+				narf.getConnectedClients().forEach( function( connection ){
+
+					connection.send( JSON.stringify( { message : messageData.message } ) );
+				});
+
+			}else{
+				connection.send( JSON.stringify( { message : '' } ) );
+			}
+		}
+	};
+
+	function socketConnectionHandler ( request ){
+
+		return true;
 	}
 
-	performRequest( 'POST' );
-	performRequest( 'GET' );
-	nukeTest();
+	/* Start a server to test http and sockets with*/
+	narf.configure( {
+
+		port : 8080,
+		debug : true,
+		asc : true,
+		socket_protocol : 'echo-protocol'
+
+	} ).then( narf.startHTTPServer( HTTPFunctions, function( hs ){
+
+		narf.narfSocketServer( SocketFunctions, socketConnectionHandler );
+		deferred.resolve( 'Set up complete' );
+
+	} ) );
+
+	return deferred.promise;
+}
+
+console.time('done');
+
+setUp().then( startTest().on('complete', function ( passed ){
+
+	console.log( 'Unit test completion status:');
+	console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 	console.timeEnd('done');
-};
+	tearDown();
+} ) );
+
 

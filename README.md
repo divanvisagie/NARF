@@ -36,9 +36,8 @@ To create a narf server all you need is to create an object with your GET and PO
 The default configuration for the server is located in lib/config.json and looks like the following:
 
     {
-
 	  "debug" : true,
-	  "port" : "auto",
+	  "port" : 8080,
 	  "auto_port_min" : 8000,
 	  "auto_port_max" : 8100,
 
@@ -49,7 +48,8 @@ The default configuration for the server is located in lib/config.json and looks
 	  "limit_post_size" : true,
 	  "post_size_limit" : 1e6,
 	  "url_selection" : true,
-
+	  "asc" : true,
+	  "socket_protocol" : null
 	}
     
 By defualt it covers the server port , a post 
@@ -241,11 +241,13 @@ or:
 
 ## Testing
 
-There is a simple test located in the tests directory , to run:
+Unit tests for narf are located in the tests directory , to run:
 
 	node ./tests/test.js 
 
-This is a simple client to check if the server is working properly.
+or:
+
+	npm test narf
 
 ## Compatibility
 
