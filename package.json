@@ -1,11 +1,7 @@
 {
   "name": "narf",
   "description": "narf server library",
-<<<<<<< HEAD
   "version": "0.1.4",
-=======
-  "version": "0.1.3",
->>>>>>> origin
   "author": "Divan Visagie <visagiedivan@gmail.com>",
   "contributors": [ 
     { "name": "Divan Visagie", "email": "visagiedivan@gmail.com" }
