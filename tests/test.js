@@ -1,5 +1,9 @@
 #! /usr/bin/env node
 
+/*
+	Test API key: 50e85fe18e17e3616774637a82968f4c
+*/
+
 var hostname = 'localhost';
 
 var http = require( 'http' ),
@@ -25,7 +29,8 @@ function performRequest( method ){
 
 		'Content-Type' : 'text/json',
 		'Content-Length' : userString.length,
-		'serverfunction' : 'loopBack'
+		'serverfunction' : 'loopBack',
+		'key' : '50e85fe18e17e3616774637a82968f4c'
 	};
 
 	var options = {
@@ -56,14 +61,17 @@ function performRequest( method ){
 			if ( method === 'POST' ){
 				if ( responseString === '{"testText":"here is some text","testNumber":1001001}' )
 					toReturn = true;
-				else
+				else{
 					toReturn = false;
+					
+				}
 			}
 			else{
-				if ( responseString === '{"headers":{"content-type":"text/json","content-length":"53","serverfunction":"loopBack","host":"localhost:8080","connection":"keep-alive"},"url":{}}' )
+				if ( responseString === '{"headers":{"content-type":"text/json","content-length":"53","serverfunction":"loopBack","key":"50e85fe18e17e3616774637a82968f4c","host":"localhost:8080","connection":"keep-alive"},"url":{}}' )
 					toReturn = true;
 				else
 					toReturn = false;
+				//console.log( 'response string: '.red + responseString );
 			}
 
 			deferred.resolve( toReturn );
@@ -98,7 +106,8 @@ function nukeTest(){
 
 		'Content-Type' : 'text/json',
 		'Content-Length' : userString.length,
-		'serverfunction' : 'loopBack'
+		'serverfunction' : 'loopBack',
+		'key' : '50e85fe18e17e3616774637a82968f4c'
 	};
 
 	var options = {
@@ -124,8 +133,6 @@ function nukeTest(){
 		res.on('end', function() {
 
 			var resultObject = JSON.parse( responseString );
-
-			//console.log( responseString );
 
 			if( responseString === '{"error":"Data was larger than the specified limit ,this is viewed as suspicious activity"}' )
 				deferred.resolve( true );
@@ -190,9 +197,7 @@ function socketTest(){
 				connection.sendUTF( obj );
 			}
 		}
-
 		sendMessage();
-
 
 	} );
 
@@ -201,6 +206,10 @@ function socketTest(){
 	return deferred.promise;
 }
 
+function authTest(){
+
+
+}
 
 
 /* Start unit Tests*/
@@ -275,6 +284,31 @@ function tearDown(){
 	process.exit();
 }
 
+function authentication_function( request, url_object ){
+
+	var deferred = q.defer();
+	var api_key = '50e85fe18e17e3616774637a82968f4c';
+
+	if ( request.headers.key ){
+
+		if( request.headers.key === api_key )
+			deferred.resolve( true );
+		else
+			deferred.resolve( false );
+	}
+	else if ( url_object.key ){
+
+		if( request.headers.key === api_key )
+			deferred.resolve( true );
+		else
+			deferred.resolve( false );
+	}
+	else
+		deferred.resolve( false );
+
+	return deferred.promise;
+}
+
 /* Unit test Set up */
 function setUp(){
 
@@ -299,7 +333,7 @@ function setUp(){
 			loopBack : function( body, url, ret ){
 
 				console.log('server received object');
-				console.log( body );
+				//console.log( body );
 				
 				ret( body );
 			}
@@ -334,7 +368,8 @@ function setUp(){
 		port : 8080,
 		debug : true,
 		asc : true,
-		socket_protocol : 'echo-protocol'
+		socket_protocol : 'echo-protocol',
+		auth_function : authentication_function
 
 	} ).then( narf.startHTTPServer( HTTPFunctions, function( hs ){
 
