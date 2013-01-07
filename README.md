@@ -83,6 +83,43 @@ or:
 
 The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.
 
+#### Authentication
+
+Authentication can be set up on a narf api by setting the value of auth_function , the function should accept a
+request and url_object as parameters and utilise q for promises , eg:
+
+	function authentication_function( request, url_object ){
+
+		var deferred = q.defer();
+		console.log( request.headers );
+		var api_key = '50e85fe18e17e3616774637a82968f4c';
+
+		if ( request.headers.key ){
+
+			if( request.headers.key === api_key )
+				deferred.resolve( true );
+			else
+				deferred.resolve( false );
+		}
+		else if ( url_object.key ){
+
+			if( request.headers.key === api_key )
+				deferred.resolve( true );
+			else
+				deferred.resolve( false );
+		}
+		else
+			deferred.resolve( false );
+
+		return deferred.promise;
+	}
+
+	narf.configure( {
+
+		auth_function : authentication_function
+	} )
+
+
 ## HTTP Server
 ### narf.startHTTPServer()
 
