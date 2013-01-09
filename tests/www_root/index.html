@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Web Sockets</title>
+    </head>
+    <body>
+        <input id="messageText" type="text" value=""></input>
+        <script>
+        
+            var myInput = document.getElementById( 'messageText' );
+
+            var lastMessage;
+
+            function attachTextListener(input, func) {
+                if (window.addEventListener) {
+                    input.addEventListener('input', func, false);
+                } else
+                    input.attachEvent('onpropertychange', function() {
+                    func.call(input);
+                });
+            }
+
+            window.WebSocket = window.WebSocket || window.MozWebSocket
+
+            var connection = new WebSocket( 'ws://localhost:8080' );
+
+            connection.onopen = function(){
+                //connection opened
+                console.log( 'connection open' );
+
+               
+                attachTextListener(myInput, function() {
+
+                    console.log(myInput.value);
+                    
+                    connection.send( JSON.stringify( { serverfunction : 'updateAll', message : myInput.value } ) );
+                });
+            };
+
+            connection.onerror = function(){
+                //connection error
+            };
+
+            connection.onmessage = function( message ){
+
+                console.log('Recieved message from server: ' );
+                console.log( message );
+
+                var dataObject = JSON.parse( message.data );
+        
+                if(myInput.value != dataObject.message && dataObject.message != lastMessage){
+                    myInput.value = dataObject.message;
+                    lastMessage = dataObject.message;
+                }
+            }
+
+            connection.ondata = function( data ){
+
+                console.log( data );
+            }
+        </script>
+    </body>
+</html>

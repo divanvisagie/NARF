@@ -10,6 +10,8 @@ var http = require( 'http' ),
 	colors = require( 'colors' ),
 	events = require( 'events' ),
 	sys = require( 'sys' ),
+	request = require( 'request' ),
+	fs = require( 'fs' ),
 	q = require( 'q' );
 
 function performRequest( method ){
@@ -215,7 +217,7 @@ function authTest(){
 /* Start unit Tests*/
 function startTest(){
 
-	var testCount = 4;
+	var testCount = 5;
 	var testCountFlag = 0;
 	var testPassed = true;
 
@@ -275,6 +277,37 @@ function startTest(){
 		e.emit( 'increment',1 );
 	} );
 
+	console.time( 'Page' );
+	request( 'http://localhost:8079', function( error, response, body ){
+
+		//console.log( body );
+
+		/* See if the body matches the file we have */
+		var fileStream = fs.createReadStream( __dirname + '/www_root/index.html' );
+		var d = '';
+		fileStream.on('data', function ( data ) {
+			d += data;
+
+		});
+		fileStream.on('end', function() {
+
+			var passed = false;
+			if( body === d )
+				passed = true;
+
+			console.log( passed ? 'passed'.cyan : 'failed'.red );
+			if (!passed) testPassed = passed;
+
+			console.timeEnd( 'Page' );
+			e.emit( 'increment',1 );
+		
+		});
+
+		
+
+
+	} );
+
 	
 	return e;
 }
@@ -284,21 +317,21 @@ function tearDown(){
 	process.exit();
 }
 
-function authentication_function( request, url_object ){
+function authentication_function( req, url_object ){
 
 	var deferred = q.defer();
 	var api_key = '50e85fe18e17e3616774637a82968f4c';
 
-	if ( request.headers.key ){
+	if ( req.headers.key ){
 
-		if( request.headers.key === api_key )
+		if( req.headers.key === api_key )
 			deferred.resolve( true );
 		else
 			deferred.resolve( false );
 	}
 	else if ( url_object.key ){
 
-		if( request.headers.key === api_key )
+		if( req.headers.key === api_key )
 			deferred.resolve( true );
 		else
 			deferred.resolve( false );
@@ -357,7 +390,7 @@ function setUp(){
 		}
 	};
 
-	function socketConnectionHandler ( request ){
+	function socketConnectionHandler ( req ){
 
 		return true;
 	}
@@ -378,6 +411,13 @@ function setUp(){
 
 	} ) );
 
+	narf.pageServer( {
+
+		port : 8079,
+		path : __dirname + '/www_root'
+		
+	} );
+
 	return deferred.promise;
 }
 
@@ -390,6 +430,7 @@ setUp().then( startTest().on('complete', function ( passed ){
 
 	console.timeEnd('done');
 	tearDown();
+
 } ) );
 
 
