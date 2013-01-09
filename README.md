@@ -29,6 +29,8 @@ To create a narf server all you need is to create an object with your GET and PO
 
 	narf.narfSocketServer()
 
+	narf.pageServer()
+
 
 ## Configuration:
 ### narf.configure()
@@ -206,55 +208,27 @@ You can fetch a list of connected clients by calling:
 
 	narf.getConnectedClients()
 
+
+
+## Static pages:
+### narf.pageServer()
+
+With narf.pageServer() you can serve static pages on a specified port. To start a page server simply call the narf.pageServer function and pass in a configuration object containting the port and path properties, port sets the port number for the web server and path sets the path to the directory from which you wish to serve static pages.
+
+eg:
+
+	narf.pageServer( {
+
+		port : 8080,
+		path :  __dirname + '/www_root',
+		error_page : 'err.html'
+	} );
+
+The error_page parameter is optional, the server will route the user to this page in the event of a 404, it this property is left out, the default narf error page will appear.
+
 ## Example.js
 
-Examples of narf implementation can be found in examples/
-
-	var narf = require( 'narf' );
-
-	var APIFunctions = {
-
-		GET : {
-
-			loopBack : function ( headers, url, ret ){
-
-				ret( { 'headers' : headers, 'url' : url } );
-			}
-		}
-	};
-
-
-	var SocketFunctions = {
-
-		updateAll : function( messageData ){
-
-			if( messageData.message ){
-
-				narf.getConnectedClients().forEach( function( connection ){
-
-					connection.send( JSON.stringify( { message : messageData.message } ) );
-				});
-			}else{
-				connection.send( JSON.stringify( { message : '' } ) );
-			}
-		}
-	};
-
-	function connectionHandler( request ){
-
-		return true;
-	}
-
-	narf.configure( {
-
-		"port" : 8080
-
-	} ).then( narf.startHTTPServer( APIFunctions , function(){
-
-		narf.narfSocketServer( SocketFunctions, connectionHandler );
-
-	} ) );
-
+Examples of narf implementation can be found in examples/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a>.
 
 ## Configurable Functionality
 
