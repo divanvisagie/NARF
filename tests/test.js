@@ -378,6 +378,13 @@ function setUp(){
 
 	} ) );
 
+	narf.pageServer( {
+
+		port : 8000,
+		path : './'
+		
+	} );
+
 	return deferred.promise;
 }
 
@@ -390,6 +397,7 @@ setUp().then( startTest().on('complete', function ( passed ){
 
 	console.timeEnd('done');
 	tearDown();
+
 } ) );
 
 
