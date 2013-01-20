@@ -8,6 +8,7 @@ var APIFunctions = { //forward facing functions
 
 		loopBack : function( headers, url ){
 				
+			console.log( headers );
 			return { 'headers' : headers, 'parsedURL' : url };
 		}
 	},
@@ -34,22 +35,40 @@ function connectionHandler( request ){
 	return true;
 }
 
-/* Setting configs example */
-narf.configure( {
+/*test with cliusters*/
+var cluster = require( 'cluster' );
+var numCPUs = require('os').cpus().length;
 
-	"port" : 8080
+if (cluster.isMaster) {
+  // Fork workers.
 
-} ).then( function( v ){
+  console.log( 'found ' + numCPUs + ' cpus' );
+  for (var i = 0; i < numCPUs; i++) {
+    cluster.fork();
+  }
 
-	console.log( v );
+  cluster.on('exit', function(worker, code, signal) {
+    console.log('worker ' + worker.process.pid + ' died');
+  });
+} else {
 
-	/* Starting an http server and then attaching a socket server */
-	narf.startHTTPServer( APIFunctions ,function( httpServer ){
-		
-		narf.narfSocketServer( socketFunctions, connectionHandler );
+	/* Setting configs example */
+	narf.configure( {
+
+		"port" : 8002
+
+	} ).then( function( v ){
+
+		console.log( v );
+
+		/* Starting an http server and then attaching a socket server */
+		narf.startHTTPServer( APIFunctions ,function( httpServer ){
+			
+			narf.narfSocketServer( socketFunctions, connectionHandler );
+		} );
+
 	} );
 
-
-} );
+}
 
 

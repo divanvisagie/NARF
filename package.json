@@ -17,7 +17,8 @@
     "colors" : ">= 0.6.0",
     "q" : ">= 0.8.0",
     "mime" : ">= 1.2.0",
-    "request" : ">= 2.11.0"
+    "request" : ">= 2.11.0",
+    "http-proxy" : ">= 0.8.7"
   },
   "devDependencies": {
     
