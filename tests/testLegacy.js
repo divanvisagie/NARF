@@ -396,6 +396,20 @@ function setUp(){
 	}
 
 	/* Start a server to test http and sockets with*/
+	narf.configure( {
+
+		port : 8080,
+		debug : true,
+		asc : true,
+		socket_protocol : 'echo-protocol',
+		auth_function : authentication_function
+
+	} ).then( narf.startHTTPServer( HTTPFunctions, function( hs ){
+
+		narf.narfSocketServer( SocketFunctions, socketConnectionHandler );
+		deferred.resolve( 'Set up complete' );
+
+	} ) );
 
 	narf.pageServer( {
 //
@@ -404,13 +418,13 @@ function setUp(){
 		
 	} );
 
-	var narfHttp = new narf.httpServer({ port : 8080 });
-	narfHttp.addAPI( HTTPFunctions );
-	narfHttp.start();
+	// var narfHttp = new narf.httpServer({ port : 8080 });
+	// narfHttp.addAPI( HTTPFunctions );
+	// narfHttp.start();
 
-	narfHttp.on( 'port', function( data ){
-		console.log( 'started server on port',data );
-	} );
+	// narfHttp.on( 'port', function( data ){
+	// 	console.log( 'started server on port',data );
+	// } );
 
 
 	return deferred.promise;

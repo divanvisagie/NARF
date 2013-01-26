@@ -1,15 +1,20 @@
-var narf = require( '../lib/narf' );
-var q = require( 'q' );
+var narf = require( '../lib/narf' ),
+	q = require( 'q' );
 
 
 var APIFunctions = { //forward facing functions
 
 	GET : {  //headers object and parsed url are passed as a parameter for get functions
 
-		loopBack : function( headers, url ){
+		loopBack : function( headers, url, ret ){
 				
 			console.log( headers );
-			return { 'headers' : headers, 'parsedURL' : url };
+			ret( { 'headers' : headers, 'parsedURL' : url } );
+		},
+
+		getHello : function( headers, url, ret ){
+
+			ret( { 'Hello' : 'world' } );
 		}
 	},
 
@@ -35,40 +40,33 @@ function connectionHandler( request ){
 	return true;
 }
 
-/*test with cliusters*/
-var cluster = require( 'cluster' );
-var numCPUs = require('os').cpus().length;
+/* Start the server */
+var narfHttp = new narf.httpServer({
 
-if (cluster.isMaster) {
-  // Fork workers.
+	port : 'auto'
+});
+console.log( narfHttp );
 
-  console.log( 'found ' + numCPUs + ' cpus' );
-  for (var i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
 
-  cluster.on('exit', function(worker, code, signal) {
-    console.log('worker ' + worker.process.pid + ' died');
-  });
-} else {
+narfHttp.start();
 
-	/* Setting configs example */
-	narf.configure( {
+narfHttp.on( 'port', function( data ){
+	console.log( data );
+	//console.log( narfHttp.server );
 
-		"port" : 8002
+} );
 
-	} ).then( function( v ){
+narfHttp.on( 'error', function( err ){
 
-		console.log( v );
+	console.log( err );
+} );
 
-		/* Starting an http server and then attaching a socket server */
-		narf.startHTTPServer( APIFunctions ,function( httpServer ){
-			
-			narf.narfSocketServer( socketFunctions, connectionHandler );
-		} );
 
-	} );
+narfHttp.addAPI( APIFunctions );
+narfHttp.addPageServer( {
+	path : __dirname + '/www_root',
+	url : '/page'
+} );
 
-}
 
 

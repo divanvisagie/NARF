@@ -14,6 +14,13 @@ The idea with NARF is that all you have to do for GET, POST and Socket is put th
 If you want command line functionality then the following is suggested:
 
 	sudo npm install -g narf
+	
+#### Stability
+
+Narf is under continuous development and is therefore subject to API changes, luckily npm allows for version specification, if you wish to use an older version of narf 
+simply use: 
+
+	npm install narf@x.x.x
 
 ### Setup
 
