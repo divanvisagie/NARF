@@ -40,6 +40,13 @@ function connectionHandler( request ){
 	return true;
 }
 
+var auth_function = function( request, url_object ){
+
+	var deferred = q.defer();
+	deferred.resolve( false );
+	return deferred.promise;
+};
+
 /* Start the server */
 var narfHttp = new narf.httpServer({
 
@@ -62,7 +69,10 @@ narfHttp.on( 'error', function( err ){
 } );
 
 
-narfHttp.addAPI( APIFunctions );
+narfHttp.addAPI( APIFunctions, {
+	authentication : auth_function
+} );
+
 narfHttp.addPageServer( {
 	path : __dirname + '/www_root',
 	url : '/page'
