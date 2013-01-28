@@ -69,14 +69,15 @@ narfHttp.on( 'error', function( err ){
 } );
 
 
-narfHttp.addAPI( APIFunctions, {
+narfHttp.addAPI( {
+	functions : APIFunctions,
 	authentication : auth_function
 } );
 
-narfHttp.addPageServer( {
-	path : __dirname + '/www_root',
-	url : '/page'
-} );
+// narfHttp.addPageServer( {
+// 	path : __dirname + '/www_root',
+// 	url : '/page'
+// } );
 
 
 

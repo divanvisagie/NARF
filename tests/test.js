@@ -1,5 +1,7 @@
 #! /usr/bin/env node
 
+var narf = require('../lib/narf');
+
 /*
 	Test API key: 50e85fe18e17e3616774637a82968f4c
 */
@@ -99,7 +101,7 @@ function nukeTest(){
 	//build some massive data
 	testObject.nukeData = '';
 
-	while (testObject.nukeData.length < 1e7)
+	while (testObject.nukeData.length < 1000001)
 		testObject.nukeData += 'a';
 
 	var userString = JSON.stringify(testObject);
@@ -303,9 +305,6 @@ function startTest(){
 		
 		});
 
-		
-
-
 	} );
 
 	
@@ -347,41 +346,41 @@ function setUp(){
 
 	var deferred = q.defer();
 	/* Create socket and http functions*/
-	var narf = require('../lib/narf');
+	
 
 	var HTTPFunctions = {
 
 		GET : {
-			loopBack : function( headers, url, ret ){
+			loopBack : function( data, ret ){
 
 				var obj = {};
-				obj.headers = headers;
-				obj.url = url;
+				obj.headers = data.headers;
+				obj.url = data.url;
 
 				ret( obj );
 			}
 		},
 
 		POST : {
-			loopBack : function( body, url, ret ){
+			loopBack : function( data, ret ){
 
 				console.log('server received object');
-				//console.log( body );
+				console.log( data.url );
 				
-				ret( body );
+				ret( data.body );
 			}
 		}
 	};
 
 	var SocketFunctions = {
 
-		loopBack : function( messageData, conn ){
+		loopBack : function( data ){
 
-			if( messageData.message ){
+			if( data.messageData.message ){
 
-				narf.getConnectedClients().forEach( function( connection ){
+				narfHttp.connected_clients.forEach( function( connection ){
 
-					connection.send( JSON.stringify( { message : messageData.message } ) );
+					connection.send( JSON.stringify( { message : data.messageData.message } ) );
 				});
 
 			}else{
@@ -398,27 +397,37 @@ function setUp(){
 	/* Start a server to test http and sockets with*/
 
 	narf.pageServer( {
-//
+
 		port : 8079,
 		path : __dirname + '/www_root'
 		
 	} );
 
 	var narfHttp = new narf.httpServer({ port : 8080 });
-	narfHttp.addAPI( HTTPFunctions );
+
+	narfHttp.addAPI( {
+		functions : HTTPFunctions,
+		datalimit : 1e6
+	} );
 	narfHttp.start();
 
 	narfHttp.on( 'port', function( data ){
 		console.log( 'started server on port',data );
-	} );
 
+		narfHttp.addSocket( {
+			functions : SocketFunctions,
+			request : socketConnectionHandler,
+			asc : false,
+			protocol : 'echo-protocol'
+		} );
+	} );
 
 	return deferred.promise;
 }
 
 console.time('done');
 
-setUp().then( startTest().on('complete', function ( passed ){
+setUp().then( startTest().on( 'complete' , function ( passed ){
 
 	console.log( 'Unit test completion status:');
 	console.log( passed ? 'passed'.cyan : 'failed'.red );
@@ -428,4 +437,4 @@ setUp().then( startTest().on('complete', function ( passed ){
 
 } ) );
 
-
+narf.setDebug( true );
