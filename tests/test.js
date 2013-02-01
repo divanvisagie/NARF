@@ -403,18 +403,21 @@ function setUp(){
 		
 	} );
 
-	var narfHttp = new narf.httpServer({ port : 8080 });
+	var narfHttp = new narf.HttpServer({
+
+		port : 8080
+
+	}).start();
 
 	narfHttp.addAPI( {
 		functions : HTTPFunctions,
 		datalimit : 1e6
 	} );
-	narfHttp.start();
 
 	narfHttp.on( 'port', function( data ){
 		console.log( 'started server on port',data );
 
-		narfHttp.addSocket( {
+		narfHttp.addWebSocket( {
 			functions : SocketFunctions,
 			request : socketConnectionHandler,
 			asc : false,

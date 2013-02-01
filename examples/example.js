@@ -48,18 +48,16 @@ var auth_function = function( request, url_object ){
 };
 
 /* Start the server */
-var narfHttp = new narf.httpServer({
+var narfHttp = new narf.HttpServer({
 
 	port : 'auto'
-});
-console.log( narfHttp );
+}).start();
 
-
-narfHttp.start();
 
 narfHttp.on( 'port', function( data ){
+
+	console.log( 'http server started' );
 	console.log( data );
-	//console.log( narfHttp.server );
 
 } );
 
@@ -73,11 +71,4 @@ narfHttp.addAPI( {
 	functions : APIFunctions,
 	authentication : auth_function
 } );
-
-// narfHttp.addPageServer( {
-// 	path : __dirname + '/www_root',
-// 	url : '/page'
-// } );
-
-
 
