@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <title>Narf by divanvisagie</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Narf</h1>
+        <h2>Narf is a framework for creating a basic Node.js Web Server with easy implementation of JSON APIs and serving of static pages.</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/divanvisagie/NARF/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/divanvisagie/NARF/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/divanvisagie/NARF" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>NARF </h1>
+
+<p>Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.</p>
+
+<p>The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.</p>
+
+<h2>Usage</h2>
+
+<h3>Installation</h3>
+
+<pre><code>npm install narf
+</code></pre>
+
+<p>If you want command line functionality then the following is suggested:</p>
+
+<pre><code>sudo npm install -g narf
+</code></pre>
+
+<h4>Stability</h4>
+
+<p>Narf is under continuous development and is therefore subject to API changes, luckily npm allows for version specification, if you wish to use an older version of narf 
+simply use: </p>
+
+<pre><code>npm install narf@x.x.x
+</code></pre>
+
+<h3>Setup</h3>
+
+<p>To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).</p>
+
+<h2>Functions</h2>
+
+<pre><code>narf.configure()
+
+narf.startHTTPServer()
+
+narf.startSocketServer()
+
+narf.narfSocketServer()
+
+narf.pageServer()
+</code></pre>
+
+<h2>Configuration:</h2>
+
+<h3>narf.configure()</h3>
+
+<p>The default configuration for the server is located in lib/config.json and looks like the following:</p>
+
+<pre><code>{
+  "debug" : true,
+  "port" : 8080,
+  "auto_port_min" : 8000,
+  "auto_port_max" : 8100,
+
+  "https" : false,
+  "key_path" : "./key.pem",
+  "cert_path" : "./cert.pem",
+
+  "limit_post_size" : true,
+  "post_size_limit" : 1e6,
+  "url_selection" : true,
+  "asc" : true,
+  "socket_protocol" : null
+}
+</code></pre>
+
+<p>By defualt it covers the server port , a post 
+body size limit and an option to remove the limit as well as a bool value to determine if the client should
+be able to select serverfunction via the url.</p>
+
+<p>You can modiy the configuration using narf.configure() by loading another configuration file :</p>
+
+<pre><code>narf.configure( require( './config' ) );
+</code></pre>
+
+<p>or just resetting the values you wish to change:</p>
+
+<pre><code>narf.configure( {
+
+    "port" : "auto"
+
+} ).then( ... );
+</code></pre>
+
+<p>Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
+asynchronous nature of javascript. </p>
+
+<p>You can also generate a config file by typing the following into your terminal:</p>
+
+<pre><code>narf configure
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>narf -c
+</code></pre>
+
+<h4>port</h4>
+
+<p>The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.</p>
+
+<h4>Authentication</h4>
+
+<p>Authentication can be set up on a narf api by setting the value of auth_function , the function should accept a
+request and url_object as parameters and utilise q for promises , eg:</p>
+
+<pre><code>function authentication_function( request, url_object ){
+
+    var deferred = q.defer();
+    console.log( request.headers );
+    var api_key = '50e85fe18e17e3616774637a82968f4c';
+
+    if ( request.headers.key ){
+
+        if( request.headers.key === api_key )
+            deferred.resolve( true );
+        else
+            deferred.resolve( false );
+    }
+    else if ( url_object.key ){
+
+        if( request.headers.key === api_key )
+            deferred.resolve( true );
+        else
+            deferred.resolve( false );
+    }
+    else
+        deferred.resolve( false );
+
+    return deferred.promise;
+}
+
+narf.configure( {
+
+    auth_function : authentication_function
+} )
+</code></pre>
+
+<h2>HTTP Server</h2>
+
+<h3>narf.startHTTPServer()</h3>
+
+<p>Below is an example of a simple narf HTTP server, in just these few lines , you can get a server running with GET and POST functionality:</p>
+
+<pre><code>var narf = require( 'narf' );
+
+var APIFunctions = {
+
+    GET : {  //headers object, parsed url and return callback are passed as a parameter for get functions
+
+        loopBack : function( headers, url, ret ){
+
+            ret( { 'headers' : headers, 'parsedURL' : url } );
+        }
+    },
+
+    POST : {  //post body is passed as a parameter for POST functions
+
+        loopBack : function( body, url, ret ){
+
+            ret( body );
+        }
+    }
+};
+
+narf.startHTTPServer( APIFunctions );
+</code></pre>
+
+<h2>Sockets</h2>
+
+<h3>narf.startSocketServer() / narf.narfScoketServer()</h3>
+
+<p>If you want to add socket functionality to your HTTP server , pass a callback function to handle it as follows:</p>
+
+<pre><code>narf.startHTTPServer( APIFunctions, function( httpServer ){
+
+    narf.startSocketServer( httpServer, function( request ){ ... } );
+} );
+</code></pre>
+
+<p>First the HTTP server is passed to the callback function in startHTTPServer(). Then the request in the socket server is passed to the callback function in startSocketServer() , from there , you have control to accept the request 
+and do the rest of the processing.</p>
+
+<p>There are two types of socket servers </p>
+
+<pre><code>narf.startSocketServer( httpserver, function( request ){ ... } )
+</code></pre>
+
+<p>and </p>
+
+<pre><code>narf.narfSocketServer( httpServer, SocketFunctions, function( request ){ ... } )
+</code></pre>
+
+<p>narf.startSocketServer() creates a socket server and then responsibility is passed on you.</p>
+
+<p>narf.narfSocketServer() however is similar to startHTTPServer in that you pass a set of public functions
+that will be exposed to the client, a parsed message data object and the connection are passed to these functions, the example below is a socket server that updates a text field on all clients:</p>
+
+<pre><code>var narf = require( 'narf' );
+
+/* Starting an http server and then attaching a socket server */
+narf.startHTTPServer( null, function( httpServer ){
+
+    var SocketFunctions = {
+
+        updateAll : function( messageData, conn ){
+
+            if( messageData.message ){
+
+                narf.getConnectedClients().forEach( function( connection ){
+
+                    if (conn != connection)
+                        connection.send( JSON.stringify( { message : messageData.message } ) );
+                });
+
+            }else{
+                connection.send( JSON.stringify( { message : '' } ) );
+            }
+        }
+    };
+
+    narf.narfSocketServer( httpServer, SocketFunctions, function( request ){
+        return true;
+    } );
+} );
+</code></pre>
+
+<p>You can fetch a list of connected clients by calling:</p>
+
+<pre><code>narf.getConnectedClients()
+</code></pre>
+
+<h2>Static pages:</h2>
+
+<h3>narf.pageServer()</h3>
+
+<p>With narf.pageServer() you can serve static pages on a specified port. To start a page server simply call the narf.pageServer function and pass in a configuration object containting the port and path properties, port sets the port number for the web server and path sets the path to the directory from which you wish to serve static pages.</p>
+
+<p>eg:</p>
+
+<pre><code>narf.pageServer( {
+
+    port : 8080,
+    path :  __dirname + '/www_root',
+    error_page : 'err.html'
+} );
+</code></pre>
+
+<p>The error_page parameter is optional, the server will route the user to this page in the event of a 404, it this property is left out, the default narf error page will appear.</p>
+
+<h2>Example.js</h2>
+
+<p>Examples of narf implementation can be found in examples/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a>.</p>
+
+<h2>Configurable Functionality</h2>
+
+<h3>POST Body Limit</h3>
+
+<p>By default POST will only accept data shorter than 1e6 in length for security purposes , this
+constraint may be modified or disabled in lib/config.json</p>
+
+<h3>HTTPS</h3>
+
+<p>HTTPS is switched off by default in the config due to its requirements, if you wish to switch it on you will need to provide the relative paths to your key and certificate files.</p>
+
+<p>If you want to create your own files for testing you can run generate_cert.sh( only tested on OSX ), but these certificates will be viewed as untrusted.</p>
+
+<p>to generate a generate_cert.sh file run the following command:</p>
+
+<pre><code>narf generate
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>narf -g
+</code></pre>
+
+<h2>Testing</h2>
+
+<p>Unit tests for narf are located in the tests directory , to run:</p>
+
+<pre><code>node ./tests/test.js 
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>npm test narf
+</code></pre>
+
+<h2>Compatibility</h2>
+
+<p>NARF is only tested under OSX but should run smoothly on other platforms</p>
+
+<h2>License</h2>
+
+<h3>MIT License</h3>
+
+<p>Copyright (C) 2012 Divan Visagie</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
