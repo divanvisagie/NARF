@@ -31,9 +31,7 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h1>NARF </h1>
-
-<p>Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.</p>
+        <p>Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.</p>
 
 <p>The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.</p>
 
@@ -49,222 +47,224 @@
 <pre><code>sudo npm install -g narf
 </code></pre>
 
-<h4>Stability</h4>
+<h4>Versoning</h4>
 
-<p>Narf is under continuous development and is therefore subject to API changes, luckily npm allows for version specification, if you wish to use an older version of narf 
-simply use: </p>
+<p>If you are looking for an earlier version of narf for any reason ,simply specify the version in npm: </p>
 
 <pre><code>npm install narf@x.x.x
 </code></pre>
 
-<h3>Setup</h3>
+<h3>Functions</h3>
 
-<p>To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).</p>
+<pre><code>pageServer()
 
-<h2>Functions</h2>
+configure()             -   depricated
 
-<pre><code>narf.configure()
+narfSocketServer()      -   depricated
 
-narf.startHTTPServer()
+getConnectedClients()   -   depricated
 
-narf.startSocketServer()
-
-narf.narfSocketServer()
-
-narf.pageServer()
+setDebug()
 </code></pre>
 
-<h2>Configuration:</h2>
+<h3>Classes</h3>
 
-<h3>narf.configure()</h3>
+<pre><code>#### HttpServer
 
-<p>The default configuration for the server is located in lib/config.json and looks like the following:</p>
+    ##### Functions:
 
-<pre><code>{
-  "debug" : true,
-  "port" : 8080,
-  "auto_port_min" : 8000,
-  "auto_port_max" : 8100,
+    start()
 
-  "https" : false,
-  "key_path" : "./key.pem",
-  "cert_path" : "./cert.pem",
+    addAPI()
 
-  "limit_post_size" : true,
-  "post_size_limit" : 1e6,
-  "url_selection" : true,
-  "asc" : true,
-  "socket_protocol" : null
-}
+    addWebSocket(  )
+
+    ##### Events:
+
+    port 
+
+    error
 </code></pre>
 
-<p>By defualt it covers the server port , a post 
-body size limit and an option to remove the limit as well as a bool value to determine if the client should
-be able to select serverfunction via the url.</p>
+<h1>Documentation</h1>
 
-<p>You can modiy the configuration using narf.configure() by loading another configuration file :</p>
+<h2>HttpServer</h2>
 
-<pre><code>narf.configure( require( './config' ) );
-</code></pre>
+<p>HttpServer is the main object in creating narf web services, all methods for creating narf style services are performed on this object.</p>
 
-<p>or just resetting the values you wish to change:</p>
-
-<pre><code>narf.configure( {
-
-    "port" : "auto"
-
-} ).then( ... );
-</code></pre>
-
-<p>Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
-asynchronous nature of javascript. </p>
-
-<p>You can also generate a config file by typing the following into your terminal:</p>
-
-<pre><code>narf configure
-</code></pre>
-
-<p>or:</p>
-
-<pre><code>narf -c
-</code></pre>
-
-<h4>port</h4>
-
-<p>The port property lets you assign the NARF server to a port, alternatively you can use the value "auto" and then set the auto_port_min and auto_port_max appropriately to have narf automatically assign itself a port.</p>
-
-<h4>Authentication</h4>
-
-<p>Authentication can be set up on a narf api by setting the value of auth_function , the function should accept a
-request and url_object as parameters and utilise q for promises , eg:</p>
-
-<pre><code>function authentication_function( request, url_object ){
-
-    var deferred = q.defer();
-    console.log( request.headers );
-    var api_key = '50e85fe18e17e3616774637a82968f4c';
-
-    if ( request.headers.key ){
-
-        if( request.headers.key === api_key )
-            deferred.resolve( true );
-        else
-            deferred.resolve( false );
-    }
-    else if ( url_object.key ){
-
-        if( request.headers.key === api_key )
-            deferred.resolve( true );
-        else
-            deferred.resolve( false );
-    }
-    else
-        deferred.resolve( false );
-
-    return deferred.promise;
-}
-
-narf.configure( {
-
-    auth_function : authentication_function
-} )
-</code></pre>
-
-<h2>HTTP Server</h2>
-
-<h3>narf.startHTTPServer()</h3>
-
-<p>Below is an example of a simple narf HTTP server, in just these few lines , you can get a server running with GET and POST functionality:</p>
+<p>Setup of this object is as follows:</p>
 
 <pre><code>var narf = require( 'narf' );
 
-var APIFunctions = {
+var narfHttp = new narf.HttpServer();
+</code></pre>
 
-    GET : {  //headers object, parsed url and return callback are passed as a parameter for get functions
+<p>HttpServer takes one constructor parameter of type object with the following properties:</p>
 
-        loopBack : function( headers, url, ret ){
+<table>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>auto_port_min</td>
+<td>Set the minimum for auto ports</td>
+</tr>
+<tr>
+<td>auto_port_max</td>
+<td>Set the maximum for auto ports</td>
+</tr>
+</table><h3>Functions</h3>
 
-            ret( { 'headers' : headers, 'parsedURL' : url } );
+<p>The following functions belong to the HttpServer object.</p>
+
+<h4>start( port )</h4>
+
+<p>Start does what it says, it starts up the http server on a particular port by specifying it in the parameter, the port can be a port number of the string 'auto' which will automatically find the most suitable port</p>
+
+<p>eg:</p>
+
+<pre><code>narfHttp.start( 8080 )
+</code></pre>
+
+<h4>addAPI( config )</h4>
+
+<p>This function adds an object with GET and POST functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.                               |</p>
+
+<p>eg:</p>
+
+<pre><code>var HTTPFunctions = {
+
+    GET : {
+        loopBack : function( data, callback ){
+
+            var obj = {};
+            obj.headers = data.headers;
+            obj.url = data.url;
+
+            callback( obj );
         }
     },
 
-    POST : {  //post body is passed as a parameter for POST functions
+    POST : {
+        loopBack : function( data, callback ){
 
-        loopBack : function( body, url, ret ){
+            console.log('server received object');
+            console.log( data.url );
 
-            ret( body );
+            callback( data.body );
         }
     }
 };
 
-narf.startHTTPServer( APIFunctions );
-</code></pre>
-
-<h2>Sockets</h2>
-
-<h3>narf.startSocketServer() / narf.narfScoketServer()</h3>
-
-<p>If you want to add socket functionality to your HTTP server , pass a callback function to handle it as follows:</p>
-
-<pre><code>narf.startHTTPServer( APIFunctions, function( httpServer ){
-
-    narf.startSocketServer( httpServer, function( request ){ ... } );
+narfHttp.addAPI( {
+    functions : HTTPFunctions,
+    datalimit : 1e6
 } );
 </code></pre>
 
-<p>First the HTTP server is passed to the callback function in startHTTPServer(). Then the request in the socket server is passed to the callback function in startSocketServer() , from there , you have control to accept the request 
-and do the rest of the processing.</p>
+<p>addAPI() takes a single object as a parameter with the following properties:</p>
 
-<p>There are two types of socket servers </p>
+<table>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>functions</td>
+<td>This is the object containing your api functions</td>
+</tr>
+<tr>
+<td>datalimit</td>
+<td>This sets a limit on the size of a POST body</td>
+</tr>
+</table><h4>addWebSocket( config )</h4>
 
-<pre><code>narf.startSocketServer( httpserver, function( request ){ ... } )
-</code></pre>
+<p>addWebocket() adds websocket functions to the httpserver in a similar way to how HTTP APIs are handled but only one socket server can be added to an http server.</p>
 
-<p>and </p>
+<p>eg:</p>
 
-<pre><code>narf.narfSocketServer( httpServer, SocketFunctions, function( request ){ ... } )
-</code></pre>
+<pre><code>var SocketFunctions = {
 
-<p>narf.startSocketServer() creates a socket server and then responsibility is passed on you.</p>
+    loopBack : function( data ){
 
-<p>narf.narfSocketServer() however is similar to startHTTPServer in that you pass a set of public functions
-that will be exposed to the client, a parsed message data object and the connection are passed to these functions, the example below is a socket server that updates a text field on all clients:</p>
+        if( data.messageData.message ){
 
-<pre><code>var narf = require( 'narf' );
+            narfHttp.connected_clients.forEach( function( connection ){
 
-/* Starting an http server and then attaching a socket server */
-narf.startHTTPServer( null, function( httpServer ){
+                connection.send( JSON.stringify( { message : data.messageData.message } ) );
+            });
 
-    var SocketFunctions = {
-
-        updateAll : function( messageData, conn ){
-
-            if( messageData.message ){
-
-                narf.getConnectedClients().forEach( function( connection ){
-
-                    if (conn != connection)
-                        connection.send( JSON.stringify( { message : messageData.message } ) );
-                });
-
-            }else{
-                connection.send( JSON.stringify( { message : '' } ) );
-            }
+        }else{
+            connection.send( JSON.stringify( { message : '' } ) );
         }
-    };
+    }
+};
+function socketConnectionHandler ( req ){
 
-    narf.narfSocketServer( httpServer, SocketFunctions, function( request ){
-        return true;
+    return true;
+}
+
+/* here addWebSocket is wrapped in the port event as web sockets require the http
+server to be up when being initialized */
+
+narfHttp.on( 'port', function( data ){
+    console.log( 'started server on port',data );
+
+    narfHttp.addWebSocket( {
+        functions : SocketFunctions,
+        request : socketConnectionHandler,
+        asc : false,
+        protocol : 'echo-protocol'
     } );
 } );
 </code></pre>
 
-<p>You can fetch a list of connected clients by calling:</p>
+<p>addWebSocket() takes a single config object as an argument with the following properties:</p>
 
-<pre><code>narf.getConnectedClients()
+<table>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>functions</td>
+<td>This is the object containing your socket functions</td>
+</tr>
+<tr>
+<td>request</td>
+<td>This sets a limit on the size of a POST body</td>
+</tr>
+<tr>
+<td>asc</td>
+<td>Boolean value that determines if socket connections are automatically accepted</td>
+</tr>
+<tr>
+<td>protocol</td>
+<td>Sets the websocket protocol</td>
+</tr>
+</table><h3>Events</h3>
+
+<h4>port</h4>
+
+<p>The port event is fired when the HttpServer starts up and returns the port number on which the server is running</p>
+
+<pre><code>narfHttp.on( 'port', function( port ){
+
+    console.log( data );
+
+} );
 </code></pre>
 
-<h2>Static pages:</h2>
+<h4>error</h4>
+
+<pre><code>narfHttp.on( 'error', function( err ){
+
+    console.log( err );
+} );
+</code></pre>
+
+<h2>pageServer</h2>
 
 <h3>narf.pageServer()</h3>
 
@@ -280,62 +280,46 @@ narf.startHTTPServer( null, function( httpServer ){
 } );
 </code></pre>
 
-<p>The error_page parameter is optional, the server will route the user to this page in the event of a 404, it this property is left out, the default narf error page will appear.</p>
+<p>pageServer() takes a single object as a parameter with the following properties:</p>
 
-<h2>Example.js</h2>
+<table>
+<tr>
+<th>Property</th>
+<th>Description</th>
+</tr>
+<tr>
+<td>port</td>
+<td>Sets the port number for the page server</td>
+</tr>
+<tr>
+<td>paths</td>
+<td>The path to the website root</td>
+</tr>
+<tr>
+<td>error_page</td>
+<td>name / path of custom error page</td>
+</tr>
+</table><p>The error_page parameter is optional, the server will route the user to this page in the event of a 404, it this property is left out, the default narf error page will appear.</p>
 
-<p>Examples of narf implementation can be found in examples/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a>.</p>
+<h2>setDebug</h2>
 
-<h2>Configurable Functionality</h2>
+<p>This function simply takes one boolean argument, when set to true things internal code will print debug info to the console.</p>
 
-<h3>POST Body Limit</h3>
+<h1>Accessing the Web API's</h1>
 
-<p>By default POST will only accept data shorter than 1e6 in length for security purposes , this
-constraint may be modified or disabled in lib/config.json</p>
+<p>All API functions are accessed in one of two ways, either by URL or by header by setting the value serverfunction to the name of the api function you wish to call. For example to call the function loopBack in the addAPI() example by url:</p>
 
-<h3>HTTPS</h3>
-
-<p>HTTPS is switched off by default in the config due to its requirements, if you wish to switch it on you will need to provide the relative paths to your key and certificate files.</p>
-
-<p>If you want to create your own files for testing you can run generate_cert.sh( only tested on OSX ), but these certificates will be viewed as untrusted.</p>
-
-<p>to generate a generate_cert.sh file run the following command:</p>
-
-<pre><code>narf generate
+<pre><code>http://localhost:8080?serverfunction=loopBack
 </code></pre>
 
-<p>or:</p>
+<p>Of corse we could have also created a request in javascript to the url http://localhost:8080 
+and set the value of serverfunction in the header to 'loopBack'.</p>
 
-<pre><code>narf -g
-</code></pre>
+<p>More examples of narf client implementation can be found in tests/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a></p>
 
-<h2>Testing</h2>
+<h1>Legacy</h1>
 
-<p>Unit tests for narf are located in the tests directory , to run:</p>
-
-<pre><code>node ./tests/test.js 
-</code></pre>
-
-<p>or:</p>
-
-<pre><code>npm test narf
-</code></pre>
-
-<h2>Compatibility</h2>
-
-<p>NARF is only tested under OSX but should run smoothly on other platforms</p>
-
-<h2>License</h2>
-
-<h3>MIT License</h3>
-
-<p>Copyright (C) 2012 Divan Visagie</p>
-
-<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
-
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
-
-<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+<p>Narf has some legacy functions , they work perfectly but are depricated because their designs were not futureproof. These depricated functions are still functional and their docuentation can be found <a href="https://github.com/divanvisagie/NARF/wiki/Legacy">here</a></p>
       </section>
     </div>
 
