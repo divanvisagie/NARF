@@ -20,7 +20,7 @@ If you want command line functionality then the following is suggested:
 If you are looking for an earlier version of narf for any reason ,simply specify the version in npm: 
 
 	npm install narf@x.x.x
-	
+
 
 ### Functions
 
@@ -36,21 +36,21 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 	
 ### Classes
 
-	#### HttpServer
+#### HttpServer
 
-		##### Functions:
+##### Functions:
 
-		start()
+	start()
 
-		addAPI()
+	addAPI()
 
-		addWebSocket(  )
+	addWebSocket( )
 
-		##### Events:
+##### Events:
 
-		port 
+port 
 
-		error
+error
 
 ## Documentation
 
