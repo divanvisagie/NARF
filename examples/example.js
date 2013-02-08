@@ -1,14 +1,20 @@
-var narf = require( '../lib/narf' );
-var q = require( 'q' );
+var narf = require( '../lib/narf' ),
+	q = require( 'q' );
 
 
 var APIFunctions = { //forward facing functions
 
 	GET : {  //headers object and parsed url are passed as a parameter for get functions
 
-		loopBack : function( headers, url ){
+		loopBack : function( headers, url, ret ){
 				
-			return { 'headers' : headers, 'parsedURL' : url };
+			console.log( headers );
+			ret( { 'headers' : headers, 'parsedURL' : url } );
+		},
+
+		getHello : function( headers, url, ret ){
+
+			ret( { 'Hello' : 'world' } );
 		}
 	},
 
@@ -34,22 +40,35 @@ function connectionHandler( request ){
 	return true;
 }
 
-/* Setting configs example */
-narf.configure( {
+var auth_function = function( request, url_object ){
 
-	"port" : 8080
+	var deferred = q.defer();
+	deferred.resolve( false );
+	return deferred.promise;
+};
 
-} ).then( function( v ){
+/* Start the server */
+var narfHttp = new narf.HttpServer({
 
-	console.log( v );
+	port : 'auto'
+}).start();
 
-	/* Starting an http server and then attaching a socket server */
-	narf.startHTTPServer( APIFunctions ,function( httpServer ){
-		
-		narf.narfSocketServer( socketFunctions, connectionHandler );
-	} );
 
+narfHttp.on( 'port', function( data ){
+
+	console.log( 'http server started' );
+	console.log( data );
 
 } );
 
+narfHttp.on( 'error', function( err ){
+
+	console.log( err );
+} );
+
+
+narfHttp.addAPI( {
+	functions : APIFunctions,
+	authentication : auth_function
+} );
 

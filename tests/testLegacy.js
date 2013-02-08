@@ -1,7 +1,5 @@
 #! /usr/bin/env node
 
-var narf = require('../lib/narf');
-
 /*
 	Test API key: 50e85fe18e17e3616774637a82968f4c
 */
@@ -101,7 +99,7 @@ function nukeTest(){
 	//build some massive data
 	testObject.nukeData = '';
 
-	while (testObject.nukeData.length < 1000001)
+	while (testObject.nukeData.length < 1e7)
 		testObject.nukeData += 'a';
 
 	var userString = JSON.stringify(testObject);
@@ -305,6 +303,9 @@ function startTest(){
 		
 		});
 
+		
+
+
 	} );
 
 	
@@ -346,41 +347,41 @@ function setUp(){
 
 	var deferred = q.defer();
 	/* Create socket and http functions*/
-	
+	var narf = require('../lib/narf');
 
 	var HTTPFunctions = {
 
 		GET : {
-			loopBack : function( data, ret ){
+			loopBack : function( headers, url, ret ){
 
 				var obj = {};
-				obj.headers = data.headers;
-				obj.url = data.url;
+				obj.headers = headers;
+				obj.url = url;
 
 				ret( obj );
 			}
 		},
 
 		POST : {
-			loopBack : function( data, ret ){
+			loopBack : function( body, url, ret ){
 
 				console.log('server received object');
-				console.log( data.url );
+				//console.log( body );
 				
-				ret( data.body );
+				ret( body );
 			}
 		}
 	};
 
 	var SocketFunctions = {
 
-		loopBack : function( data ){
+		loopBack : function( messageData, conn ){
 
-			if( data.messageData.message ){
+			if( messageData.message ){
 
-				narfHttp.connected_clients.forEach( function( connection ){
+				narf.getConnectedClients().forEach( function( connection ){
 
-					connection.send( JSON.stringify( { message : data.messageData.message } ) );
+					connection.send( JSON.stringify( { message : messageData.message } ) );
 				});
 
 			}else{
@@ -395,38 +396,43 @@ function setUp(){
 	}
 
 	/* Start a server to test http and sockets with*/
+	narf.configure( {
+
+		port : 8080,
+		debug : true,
+		asc : true,
+		socket_protocol : 'echo-protocol',
+		auth_function : authentication_function
+
+	} ).then( narf.startHTTPServer( HTTPFunctions, function( hs ){
+
+		narf.narfSocketServer( SocketFunctions, socketConnectionHandler );
+		deferred.resolve( 'Set up complete' );
+
+	} ) );
 
 	narf.pageServer( {
-
+//
 		port : 8079,
 		path : __dirname + '/www_root'
 		
 	} );
 
-	var narfHttp = new narf.HttpServer().start( 8080 );
+	// var narfHttp = new narf.httpServer({ port : 8080 });
+	// narfHttp.addAPI( HTTPFunctions );
+	// narfHttp.start();
 
-	narfHttp.addAPI( {
-		functions : HTTPFunctions,
-		datalimit : 1e6
-	} );
+	// narfHttp.on( 'port', function( data ){
+	// 	console.log( 'started server on port',data );
+	// } );
 
-	narfHttp.on( 'port', function( data ){
-		console.log( 'started server on port',data );
-
-		narfHttp.addWebSocket( {
-			functions : SocketFunctions,
-			request : socketConnectionHandler,
-			asc : false,
-			protocol : 'echo-protocol'
-		} );
-	} );
 
 	return deferred.promise;
 }
 
 console.time('done');
 
-setUp().then( startTest().on( 'complete' , function ( passed ){
+setUp().then( startTest().on('complete', function ( passed ){
 
 	console.log( 'Unit test completion status:');
 	console.log( passed ? 'passed'.cyan : 'failed'.red );
@@ -436,4 +442,4 @@ setUp().then( startTest().on( 'complete' , function ( passed ){
 
 } ) );
 
-narf.setDebug( true );
+
