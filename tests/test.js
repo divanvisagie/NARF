@@ -403,11 +403,7 @@ function setUp(){
 		
 	} );
 
-	var narfHttp = new narf.HttpServer({
-
-		port : 8080
-
-	}).start();
+	var narfHttp = new narf.HttpServer().start( 8080 );
 
 	narfHttp.addAPI( {
 		functions : HTTPFunctions,

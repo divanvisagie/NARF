@@ -15,18 +15,15 @@ If you want command line functionality then the following is suggested:
 
 	sudo npm install -g narf
 	
-#### Stability
+#### Versoning
 
-Narf is under continuous development and is therefore subject to API changes, luckily npm allows for version specification, if you wish to use an older version of narf 
-simply use: 
+If you are looking for an earlier version of narf for any reason ,simply specify the version in npm: 
 
 	npm install narf@x.x.x
 
-## Functions
+### Functions
 
 	pageServer()
-
-	startHTTPServer()
 
 	configure()				-	depricated
 
@@ -36,47 +33,37 @@ simply use:
 
 	setDebug()
 	
-## Classes
+### Classes
 
-	### HttpServer
+	#### HttpServer
 
-		#### Functions:
+		##### Functions:
 
 		start()
 
-		#### Events:
+		addAPI()
+
+		addWebSocket(  )
+
+		##### Events:
 
 		port 
 
 		error
 
+## Documentation
 
-## Static pages:
-### narf.pageServer()
+Documentation can be found in Docs.md or [here](http://divanvisagie.github.com/NARF/)
+## Examples
 
-With narf.pageServer() you can serve static pages on a specified port. To start a page server simply call the narf.pageServer function and pass in a configuration object containting the port and path properties, port sets the port number for the web server and path sets the path to the directory from which you wish to serve static pages.
+Examples of narf implementation can be found in examples/ or on the narf [wiki](https://github.com/divanvisagie/NARF/wiki/Usage-Examples)
 
-eg:
+## Compatibility
 
-	narf.pageServer( {
-
-		port : 8080,
-		path :  __dirname + '/www_root',
-		error_page : 'err.html'
-	} );
-
-The error_page parameter is optional, the server will route the user to this page in the event of a 404, it this property is left out, the default narf error page will appear.
-
-## Example.js
-
-Examples of narf implementation can be found in examples/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a>.
+NARF is only tested under OSX but should run smoothly on other platforms
 
 ## Configurable Functionality
 
-### POST Body Limit
-
-By default POST will only accept data shorter than 1e6 in length for security purposes , this
-constraint may be modified or disabled in lib/config.json
 
 ### HTTPS
 
@@ -100,10 +87,6 @@ Unit tests for narf are located in the tests directory , to run:
 or:
 
 	npm test narf
-
-## Compatibility
-
-NARF is only tested under OSX but should run smoothly on other platforms
 
 ## License 
 
