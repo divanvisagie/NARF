@@ -14,10 +14,12 @@ Setup of this object is as follows:
 
 HttpServer takes one constructor parameter of type object with the following properties:
 
-| Property 		| Description 							 		   |
-|---------------|--------------------------------------------------|
-| auto_port_min | Set the minimum for auto ports 				   |
-| auto_port_max | Set the maximum for auto ports     			   |
+| Property 		| Description 							 		   							|
+|---------------|---------------------------------------------------------------------------|
+| auto_port_min | Set the minimum for auto ports 				   							|
+| auto_port_max | Set the maximum for auto ports     			   							|
+| port          | Set the port number (this is optional as it can be set in `start()` )	 	|
+
 
 ### Functions
 

@@ -14,76 +14,6 @@ The idea with NARF is that all you have to do for GET, POST and Socket is put th
 If you want command line functionality then the following is suggested:
 
 	sudo npm install -g narf
-<<<<<<< HEAD
-=======
-	
-#### Stability
-
-Narf is under continuous development and is therefore subject to API changes, luckily npm allows for version specification, if you wish to use an older version of narf 
-simply use: 
-
-	npm install narf@x.x.x
-
-### Setup
-
-To create a narf server all you need is to create an object with your GET and POST functions, if you wish to return an object to the client simply use a return statement to return a valid javascript object , if you do not return an object a default object will be returned as specified in lib/config.json under "default_return". After you create your functions, simply import the narf library and run narf.startHTTPServer( APIFunctions ).
-
-## Functions
-
-	narf.configure()
-
-	narf.startHTTPServer()
-
-	narf.startSocketServer()
-
-	narf.narfSocketServer()
-
-	narf.pageServer()
-
-
-## Configuration:
-### narf.configure()
-
-The default configuration for the server is located in lib/config.json and looks like the following:
-
-    {
-	  "debug" : true,
-	  "port" : 8080,
-	  "auto_port_min" : 8000,
-	  "auto_port_max" : 8100,
-
-	  "https" : false,
-	  "key_path" : "./key.pem",
-	  "cert_path" : "./cert.pem",
-
-	  "limit_post_size" : true,
-	  "post_size_limit" : 1e6,
-	  "url_selection" : true,
-	  "asc" : true,
-	  "socket_protocol" : null
-	}
-    
-By defualt it covers the server port , a post 
-body size limit and an option to remove the limit as well as a bool value to determine if the client should
-be able to select serverfunction via the url.
-
-You can modiy the configuration using narf.configure() by loading another configuration file :
-
-	narf.configure( require( './config' ) );
-
-or just resetting the values you wish to change:
-
-	narf.configure( {
-
-		"port" : "auto"
-
-	} ).then( ... );
-
-Note: It is always a good idea to use narf.configure( ... ).then( function(value){ ...startHTTP here... } ) due to the 
-asynchronous nature of javascript. 
-
-You can also generate a config file by typing the following into your terminal:
->>>>>>> Update README.md
 	
 #### Versoning
 
@@ -158,6 +88,11 @@ Unit tests for narf are located in the tests directory , to run:
 or:
 
 	npm test narf
+
+Legacy
+======
+
+Narf has some legacy functions , they work perfectly but are depricated because their designs were not futureproof. These depricated functions are still functional and their docuentation can be found [here](https://github.com/divanvisagie/NARF/wiki/Legacy)
 
 ## License 
 

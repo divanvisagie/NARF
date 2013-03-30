@@ -59,7 +59,6 @@ function performRequest( method ){
 		res.on('end', function() {
 			var resultObject = JSON.parse(responseString);
 
-			
 			//console.log(responseString);
 
 			if ( method === 'POST' ){
@@ -67,7 +66,6 @@ function performRequest( method ){
 					toReturn = true;
 				else{
 					toReturn = false;
-					
 				}
 			}
 			else{
@@ -196,7 +194,7 @@ function socketTest(){
 		function sendMessage(){
 
 			if (connection.connected) {
-	
+
 				var obj = JSON.stringify( { serverfunction : 'loopBack', message : 'test message' } );
 				connection.sendUTF( obj );
 			}
@@ -206,7 +204,7 @@ function socketTest(){
 	} );
 
 	client.connect('ws://localhost:8080/', 'echo-protocol');
-	
+
 	return deferred.promise;
 }
 
@@ -251,7 +249,7 @@ function startTest(){
 
 		console.timeEnd( 'POST' );
 		console.log(passed ? 'passed'.cyan : 'failed'.red);
-		
+
 		if (!passed) testPassed = passed;
 
 		e.emit( 'increment',1 );
@@ -264,7 +262,7 @@ function startTest(){
 		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
-		
+
 		e.emit('increment',1);
 	} );
 
@@ -275,7 +273,7 @@ function startTest(){
 		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
-		
+
 		e.emit( 'increment',1 );
 	} );
 
@@ -302,12 +300,12 @@ function startTest(){
 
 			console.timeEnd( 'Page' );
 			e.emit( 'increment',1 );
-		
+
 		});
 
 	} );
 
-	
+
 	return e;
 }
 
@@ -346,7 +344,7 @@ function setUp(){
 
 	var deferred = q.defer();
 	/* Create socket and http functions*/
-	
+
 
 	var HTTPFunctions = {
 
@@ -366,7 +364,7 @@ function setUp(){
 
 				console.log('server received object');
 				console.log( data.url );
-				
+
 				ret( data.body );
 			}
 		}
@@ -400,7 +398,7 @@ function setUp(){
 
 		port : 8079,
 		path : __dirname + '/www_root'
-		
+
 	} );
 
 	var narfHttp = new narf.HttpServer().start( 8080 );
