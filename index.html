@@ -69,22 +69,21 @@ setDebug()
 
 <h3>Classes</h3>
 
-<pre><code>#### HttpServer
+<h4>HttpServer</h4>
 
-    ##### Functions:
+<h5>Functions:</h5>
 
-    start()
+<p><code>start()</code></p>
 
-    addAPI()
+<p><code>addAPI()</code></p>
 
-    addWebSocket(  )
+<p><code>addWebSocket()</code></p>
 
-    ##### Events:
+<h5>Events:</h5>
 
-    port 
+<p><code>port</code> </p>
 
-    error
-</code></pre>
+<p><code>error</code></p>
 
 <h1>Documentation</h1>
 
@@ -113,6 +112,10 @@ var narfHttp = new narf.HttpServer();
 <tr>
 <td>auto_port_max</td>
 <td>Set the maximum for auto ports</td>
+</tr>
+<tr>
+<td>port</td>
+<td>Set the port number (this is optional as it can be set in <code>start()</code> )</td>
 </tr>
 </table><h3>Functions</h3>
 
@@ -331,7 +334,17 @@ and set the value of serverfunction in the header to 'loopBack'.</p>
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-39737077-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
