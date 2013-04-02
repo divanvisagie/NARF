@@ -21,7 +21,6 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 
 	npm install narf@x.x.x
 
-
 ### Functions
 
 	pageServer()
@@ -61,10 +60,9 @@ Examples of narf implementation can be found in examples/ or on the narf [wiki](
 
 ## Compatibility
 
-NARF is only tested under OSX but should run smoothly on other platforms
+NARF is  tested under OSX and can run on Windows as well but should run smoothly on other platforms
 
 ## Configurable Functionality
-
 
 ### HTTPS
 
