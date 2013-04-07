@@ -23,33 +23,33 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 
 ### Functions
 
-	pageServer()
+	* pageServer()
 
-	configure()				-	depricated
+	* configure()				-	depricated
 
-	narfSocketServer()		-	depricated
+	* narfSocketServer()		-	depricated
 
-	getConnectedClients()	- 	depricated
+	* getConnectedClients()	- 	depricated
 
-	setDebug()
+	* setDebug()
 	
 ### Classes
 
 #### HttpServer
 
-##### Functions:
+* ##### Functions:
 
-	start()
+	* start()
 
-	addAPI()
+	* addAPI()
 
-	addWebSocket( )
+	* addWebSocket( )
 
-##### Events:
+* ##### Events:
 
-port 
+	* port 
 
-error
+	* error
 
 ## Documentation
 
