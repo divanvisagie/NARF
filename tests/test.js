@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-var narf = require('../lib/narf');
+var narf = require('../lib/narf'),
+	fs = require( 'fs' );
 
 /*
 	Test API key: 50e85fe18e17e3616774637a82968f4c
@@ -217,7 +218,7 @@ function authTest(){
 /* Start unit Tests*/
 function startTest(){
 
-	var testCount = 5;
+	var testCount = 6;
 	var testCountFlag = 0;
 	var testPassed = true;
 
@@ -305,6 +306,32 @@ function startTest(){
 
 	} );
 
+	console.time( 'Pipe' );
+	request( 'http://localhost:8080?serverfunction=override', function( error, response, body ){
+
+		/* See if the body matches the file we have */
+		var fileStream = fs.createReadStream( __dirname + '/www_root/index.html' );
+		var d = '';
+		fileStream.on('data', function ( data ) {
+			d += data;
+
+		});
+		fileStream.on('end', function() {
+
+			var passed = false;
+			if( body === d )
+				passed = true;
+
+			console.log( passed ? 'passed'.cyan : 'failed'.red );
+			if (!passed) testPassed = passed;
+
+			console.timeEnd( 'Pipe' );
+			e.emit( 'increment',1 );
+
+		});
+
+	} );
+
 
 	return e;
 }
@@ -356,6 +383,18 @@ function setUp(){
 				obj.url = data.url;
 
 				ret( obj );
+			},
+
+			override : function( data, ret ){
+
+				/* This function overrides the narf callback structure and 
+				pipes data directly into the response object */
+
+				data.response.writeHead( 404, { 'Content-Type' : 'text/html' } );
+
+				var fileStream = fs.createReadStream( __dirname + '/index.html' );
+				fileStream.pipe( data.response );
+
 			}
 		},
 

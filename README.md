@@ -29,7 +29,7 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 
 * narfSocketServer()		-	depricated
 
-* getConnectedClients()	- 	depricated
+* getConnectedClients()		- 	depricated
 
 * setDebug()
 	
