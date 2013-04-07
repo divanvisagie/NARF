@@ -9,7 +9,7 @@ The idea with NARF is that all you have to do for GET, POST and Socket is put th
 
 ### Installation 
 
-	npm install narf
+    npm install narf
 
 If you want command line functionality then the following is suggested:
 
@@ -23,33 +23,33 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 
 ### Functions
 
-	* pageServer()
+* pageServer()
 
-	* configure()				-	depricated
+* configure()				-	depricated
 
-	* narfSocketServer()		-	depricated
+* narfSocketServer()		-	depricated
 
-	* getConnectedClients()	- 	depricated
+* getConnectedClients()	- 	depricated
 
-	* setDebug()
+* setDebug()
 	
 ### Classes
 
 #### HttpServer
 
-* ##### Functions:
+* ##### Functions:  
 
-	* start()
+    * start()
 
-	* addAPI()
+    * addAPI()
 
-	* addWebSocket( )
+    * addWebSocket( )
 
 * ##### Events:
 
-	* port 
+    * port 
 
-	* error
+    * error
 
 ## Documentation
 
