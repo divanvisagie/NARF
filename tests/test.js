@@ -1,6 +1,7 @@
 #! /usr/bin/env node
 
-var narf = require('../lib/narf');
+var narf = require('../lib/narf'),
+	fs = require( 'fs' );
 
 /*
 	Test API key: 50e85fe18e17e3616774637a82968f4c
@@ -59,7 +60,6 @@ function performRequest( method ){
 		res.on('end', function() {
 			var resultObject = JSON.parse(responseString);
 
-			
 			//console.log(responseString);
 
 			if ( method === 'POST' ){
@@ -67,7 +67,6 @@ function performRequest( method ){
 					toReturn = true;
 				else{
 					toReturn = false;
-					
 				}
 			}
 			else{
@@ -196,7 +195,7 @@ function socketTest(){
 		function sendMessage(){
 
 			if (connection.connected) {
-	
+
 				var obj = JSON.stringify( { serverfunction : 'loopBack', message : 'test message' } );
 				connection.sendUTF( obj );
 			}
@@ -206,7 +205,7 @@ function socketTest(){
 	} );
 
 	client.connect('ws://localhost:8080/', 'echo-protocol');
-	
+
 	return deferred.promise;
 }
 
@@ -219,7 +218,7 @@ function authTest(){
 /* Start unit Tests*/
 function startTest(){
 
-	var testCount = 5;
+	var testCount = 6;
 	var testCountFlag = 0;
 	var testPassed = true;
 
@@ -251,7 +250,7 @@ function startTest(){
 
 		console.timeEnd( 'POST' );
 		console.log(passed ? 'passed'.cyan : 'failed'.red);
-		
+
 		if (!passed) testPassed = passed;
 
 		e.emit( 'increment',1 );
@@ -264,7 +263,7 @@ function startTest(){
 		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
-		
+
 		e.emit('increment',1);
 	} );
 
@@ -275,7 +274,7 @@ function startTest(){
 		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
-		
+
 		e.emit( 'increment',1 );
 	} );
 
@@ -302,12 +301,38 @@ function startTest(){
 
 			console.timeEnd( 'Page' );
 			e.emit( 'increment',1 );
-		
+
 		});
 
 	} );
 
-	
+	console.time( 'Pipe' );
+	request( 'http://localhost:8080?serverfunction=override', function( error, response, body ){
+
+		/* See if the body matches the file we have */
+		var fileStream = fs.createReadStream( __dirname + '/www_root/index.html' );
+		var d = '';
+		fileStream.on('data', function ( data ) {
+			d += data;
+
+		});
+		fileStream.on('end', function() {
+
+			var passed = false;
+			if( body === d )
+				passed = true;
+
+			console.log( passed ? 'passed'.cyan : 'failed'.red );
+			if (!passed) testPassed = passed;
+
+			console.timeEnd( 'Pipe' );
+			e.emit( 'increment',1 );
+
+		});
+
+	} );
+
+
 	return e;
 }
 
@@ -346,7 +371,7 @@ function setUp(){
 
 	var deferred = q.defer();
 	/* Create socket and http functions*/
-	
+
 
 	var HTTPFunctions = {
 
@@ -358,6 +383,18 @@ function setUp(){
 				obj.url = data.url;
 
 				ret( obj );
+			},
+
+			override : function( data, ret ){
+
+				/* This function overrides the narf callback structure and 
+				pipes data directly into the response object */
+
+				data.response.writeHead( 404, { 'Content-Type' : 'text/html' } );
+
+				var fileStream = fs.createReadStream( __dirname + '/index.html' );
+				fileStream.pipe( data.response );
+
 			}
 		},
 
@@ -366,7 +403,7 @@ function setUp(){
 
 				console.log('server received object');
 				console.log( data.url );
-				
+
 				ret( data.body );
 			}
 		}
@@ -400,7 +437,7 @@ function setUp(){
 
 		port : 8079,
 		path : __dirname + '/www_root'
-		
+
 	} );
 
 	var narfHttp = new narf.HttpServer().start( 8080 );

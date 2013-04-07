@@ -1,7 +1,7 @@
 Documentation
 =============
 
-## HttpServer
+# HttpServer
 
 HttpServer is the main object in creating narf web services, all methods for creating narf style services are performed on this object.
 
@@ -14,16 +14,17 @@ Setup of this object is as follows:
 
 HttpServer takes one constructor parameter of type object with the following properties:
 
-| Property 		| Description 							 		   |
-|---------------|--------------------------------------------------|
-| auto_port_min | Set the minimum for auto ports 				   |
-| auto_port_max | Set the maximum for auto ports     			   |
+| Property 		| Description 							 		   							|
+|---------------|---------------------------------------------------------------------------|
+| auto_port_min | Set the minimum port number for auto ports 				   				|
+| auto_port_max | Set the maximum port number for auto ports     			   				|
+| port          | Set the port number (this is optional as it can be set in `start()` )	 	|
 
-### Functions
+## Functions
 
 The following functions belong to the HttpServer object.
 
-#### start( port )
+### start( port )
 
 Start does what it says, it starts up the http server on a particular port by specifying it in the parameter, the port can be a port number of the string 'auto' which will automatically find the most suitable port
 
@@ -33,9 +34,9 @@ eg:
 	narfHttp.start( 8080 )
 
 
-#### addAPI( config )
+### addAPI( config )
 
-This function adds an object with GET and POST functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.								|
+This function adds an object with GET and POST functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.
 
 eg:
 
@@ -50,6 +51,16 @@ eg:
 				obj.url = data.url;
 
 				callback( obj );
+			},
+			override : function( data, ret ){
+
+				/* This function overrides the narf callback structure and 
+				pipes data directly into the response object */
+
+				data.response.writeHead( 404, { 'Content-Type' : 'text/html' } );
+
+				var fileStream = fs.createReadStream( __dirname + '/index.html' );
+				fileStream.pipe( data.response );
 			}
 		},
 
@@ -75,8 +86,23 @@ addAPI() takes a single object as a parameter with the following properties:
 |---------------|--------------------------------------------------|
 | functions     | This is the object containing your api functions |
 | datalimit     | This sets a limit on the size of a POST body     |
+| url 			| the url at which the api will sit 			   |
+| body_wait		| If this is set to true then for POST functions, NARF will wait for the body data to be fully transmitted first and will pass the data as 'body' in the data parameter, if it is set to false , the 'body' attribute will be null and body data must be handled manually |
 
-#### addWebSocket( config )
+
+Both GET and POST functions recieve a data and a callback parameter. The data parameter is an object with the following properties:
+
+
+| Property  | Description 																			|
+|-----------|---------------------------------------------------------------------------------------|
+| body 		| This is the body of the request ( This property is only available to POST functions ) |
+| url       | This is a parsed object of the request URL 											|
+| headers	| Object containing the request headers													|
+| request 	| The original request object as recieved by the http server 							|
+| response	| This is the response object handed to the function by the http server , you can use this instead of the callback to write data back to the client if you want to override narf's typical json callback |
+
+
+### addWebSocket( config )
 
 addWebocket() adds websocket functions to the httpserver in a similar way to how HTTP APIs are handled but only one socket server can be added to an http server.
 
@@ -127,7 +153,9 @@ addWebSocket() takes a single config object as an argument with the following pr
 | asc 			| Boolean value that determines if socket connections are automatically accepted |
 | protocol		| Sets the websocket protocol			
 
-### Events
+## Events
+
+An instance of a narf HttpServer will fire the following events.
 
 #### port
 
@@ -147,7 +175,7 @@ The port event is fired when the HttpServer starts up and returns the port numbe
 	} );
 
 
-## pageServer
+# pageServer
 
 ### narf.pageServer()
 

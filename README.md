@@ -9,7 +9,7 @@ The idea with NARF is that all you have to do for GET, POST and Socket is put th
 
 ### Installation 
 
-	npm install narf
+    npm install narf
 
 If you want command line functionality then the following is suggested:
 
@@ -21,36 +21,35 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 
 	npm install narf@x.x.x
 
-
 ### Functions
 
-	pageServer()
+* pageServer()
 
-	configure()				-	depricated
+* configure()				-	depricated
 
-	narfSocketServer()		-	depricated
+* narfSocketServer()		-	depricated
 
-	getConnectedClients()	- 	depricated
+* getConnectedClients()		- 	depricated
 
-	setDebug()
+* setDebug()
 	
 ### Classes
 
 #### HttpServer
 
-##### Functions:
+* ##### Functions:  
 
-	start()
+    * start()
 
-	addAPI()
+    * addAPI()
 
-	addWebSocket( )
+    * addWebSocket( )
 
-##### Events:
+* ##### Events:
 
-port 
+    * port 
 
-error
+    * error
 
 ## Documentation
 
@@ -61,10 +60,9 @@ Examples of narf implementation can be found in examples/ or on the narf [wiki](
 
 ## Compatibility
 
-NARF is only tested under OSX but should run smoothly on other platforms
+NARF is  tested under OSX and can run on Windows as well but should run smoothly on other platforms
 
 ## Configurable Functionality
-
 
 ### HTTPS
 
@@ -88,6 +86,11 @@ Unit tests for narf are located in the tests directory , to run:
 or:
 
 	npm test narf
+
+Legacy
+======
+
+Narf has some legacy functions , they work perfectly but are depricated because their designs were not futureproof. These depricated functions are still functional and their docuentation can be found [here](https://github.com/divanvisagie/NARF/wiki/Legacy)
 
 ## License 
 
