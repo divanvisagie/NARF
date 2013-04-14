@@ -63,7 +63,7 @@ If you are looking for an earlier version of narf for any reason ,simply specify
 Documentation
 =============
 
-# HttpServer
+## HttpServer
 
 HttpServer is the main object in creating narf web services, all methods for creating narf style services are performed on this object.
 
@@ -266,8 +266,7 @@ The error_page parameter is optional, the server will route the user to this pag
 
 This function simply takes one boolean argument, when set to true things internal code will print debug info to the console.
 
-Accessing the Web API's
-=======================
+## Accessing the Web API's
 
 All API functions are accessed in one of two ways, either by URL or by header by setting the value serverfunction to the name of the api function you wish to call. For example to call the function loopBack in the addAPI() example by url:
 
@@ -278,8 +277,7 @@ and set the value of serverfunction in the header to 'loopBack'.
 
 More examples of narf client implementation can be found in tests/ or on the narf [wiki](https://github.com/divanvisagie/NARF/wiki/Usage-Examples)
 
-Legacy
-======
+## Legacy
 
 Narf has some legacy functions , they work perfectly but are depricated because their designs were not futureproof. These depricated functions are still functional and their docuentation can be found [here](https://github.com/divanvisagie/NARF/wiki/Legacy)
 
