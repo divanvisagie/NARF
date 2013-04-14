@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Narf : Narf is a framework for creating a basic Node.js Web Server with easy implementation of JSON APIs and serving of static pages." />
+    <meta name="description" content="Narf : Narf is a framework for creating a basic Node.js Web Server with easy implementation of JSON APIs." />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/divanvisagie/NARF">View on GitHub</a>
 
           <h1 id="project_title">Narf</h1>
-          <h2 id="project_tagline">Narf is a framework for creating a basic Node.js Web Server with easy implementation of JSON APIs and serving of static pages.</h2>
+          <h2 id="project_tagline">Narf is a framework for creating a basic Node.js Web Server with easy implementation of JSON APIs.</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/divanvisagie/NARF/zipball/master">Download this project as a .zip file</a>
@@ -31,11 +31,19 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <p>Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.</p>
+        <p>Narf is a basic framework for creating a JSON API with node , it supports both HTTP ( With a selection of verbs ) as well as web sockets.</p>
 
-<p>The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.</p>
+<p>The idea with NARF is that all you have to do for HTTP and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For HTTP, data is returned to the client either by use of a callback function , which will automatically convert the data to a JSON format ,ie: 'callback( [object data] )` or by piping data directly back into the response object.</p>
 
-<h2>Usage</h2>
+<p>Supported HTTP verbs ( as of 0.2.1 ):</p>
+
+<ul>
+<li><p>GET</p></li>
+<li><p>HEAD</p></li>
+<li><p>PUT</p></li>
+<li><p>POST</p></li>
+<li><p>DELETE</p></li>
+</ul><h2>Usage</h2>
 
 <h3>Installation</h3>
 
@@ -86,7 +94,7 @@
 </li>
 </ul><h1>Documentation</h1>
 
-<h1>HttpServer</h1>
+<h2>HttpServer</h2>
 
 <p>HttpServer is the main object in creating narf web services, all methods for creating narf style services are performed on this object.</p>
 
@@ -131,7 +139,7 @@ var narfHttp = new narf.HttpServer();
 
 <h3>addAPI( config )</h3>
 
-<p>This function adds an object with GET and POST functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.</p>
+<p>This function adds an object with HTTP verb functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.</p>
 
 <p>eg:</p>
 
@@ -198,7 +206,7 @@ narfHttp.addAPI( {
 <td>body_wait</td>
 <td>If this is set to true then for POST functions, NARF will wait for the body data to be fully transmitted first and will pass the data as 'body' in the data parameter, if it is set to false , the 'body' attribute will be null and body data must be handled manually</td>
 </tr>
-</table><p>Both GET and POST functions recieve a data and a callback parameter. The data parameter is an object with the following properties:</p>
+</table><p>HTTP functions recieve a data and a callback parameter. The data parameter is an object with the following properties:</p>
 
 <table>
 <tr>
@@ -207,7 +215,7 @@ narfHttp.addAPI( {
 </tr>
 <tr>
 <td>body</td>
-<td>This is the body of the request ( This property is only available to POST functions )</td>
+<td>This is the body of the request ( This property is only available if there was data written to the request )</td>
 </tr>
 <tr>
 <td>url</td>
@@ -354,7 +362,7 @@ narfHttp.on( 'port', function( data ){
 
 <p>This function simply takes one boolean argument, when set to true things internal code will print debug info to the console.</p>
 
-<h1>Accessing the Web API's</h1>
+<h2>Accessing the Web API's</h2>
 
 <p>All API functions are accessed in one of two ways, either by URL or by header by setting the value serverfunction to the name of the api function you wish to call. For example to call the function loopBack in the addAPI() example by url:</p>
 
@@ -366,11 +374,41 @@ and set the value of serverfunction in the header to 'loopBack'.</p>
 
 <p>More examples of narf client implementation can be found in tests/ or on the narf <a href="https://github.com/divanvisagie/NARF/wiki/Usage-Examples">wiki</a></p>
 
-<h1>Legacy</h1>
+<h2>Legacy</h2>
 
 <p>Narf has some legacy functions , they work perfectly but are depricated because their designs were not futureproof. These depricated functions are still functional and their docuentation can be found <a href="https://github.com/divanvisagie/NARF/wiki/Legacy">here</a></p>
 
-<h2>License</h2>
+<h2>Configurable Functionality</h2>
+
+<h3>HTTPS</h3>
+
+<p>HTTPS is switched off by default in the config due to its requirements, if you wish to switch it on you will need to provide the relative paths to your key and certificate files.</p>
+
+<p>If you want to create your own files for testing you can run generate_cert.sh( only tested on OSX ), but these certificates will be viewed as untrusted.</p>
+
+<p>to generate a generate_cert.sh file run the following command:</p>
+
+<pre><code>narf generate
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>narf -g
+</code></pre>
+
+<h2>Testing</h2>
+
+<p>Unit tests for narf are located in the tests directory , to run:</p>
+
+<pre><code>node ./tests/test.js 
+</code></pre>
+
+<p>or:</p>
+
+<pre><code>npm test narf
+</code></pre>
+
+<h1>License</h1>
 
 <h3>MIT License</h3>
 
