@@ -36,7 +36,7 @@ eg:
 
 ### addAPI( config )
 
-This function adds an object with GET and POST functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.
+This function adds an object with HTTP verb functions as an API at the set URL , this function can be used multiple times to add web APIs to different urls, but will cause an error if the urls conflict.
 
 eg:
 
@@ -90,15 +90,15 @@ addAPI() takes a single object as a parameter with the following properties:
 | body_wait		| If this is set to true then for POST functions, NARF will wait for the body data to be fully transmitted first and will pass the data as 'body' in the data parameter, if it is set to false , the 'body' attribute will be null and body data must be handled manually |
 
 
-Both GET and POST functions recieve a data and a callback parameter. The data parameter is an object with the following properties:
+HTTP functions recieve a data and a callback parameter. The data parameter is an object with the following properties:
 
 
-| Property  | Description 																			|
-|-----------|---------------------------------------------------------------------------------------|
-| body 		| This is the body of the request ( This property is only available to POST functions ) |
-| url       | This is a parsed object of the request URL 											|
-| headers	| Object containing the request headers													|
-| request 	| The original request object as recieved by the http server 							|
+| Property  | Description 																								   |
+|-----------|--------------------------------------------------------------------------------------------------------------|
+| body 		| This is the body of the request ( This property is only available if there was data written to the request ) |
+| url       | This is a parsed object of the request URL 																   |
+| headers	| Object containing the request headers																		   |
+| request 	| The original request object as recieved by the http server 												   |
 | response	| This is the response object handed to the function by the http server , you can use this instead of the callback to write data back to the client if you want to override narf's typical json callback |
 
 

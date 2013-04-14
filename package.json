@@ -1,7 +1,7 @@
 {
   "name": "narf",
   "description": "narf server library",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": "Divan Visagie <visagiedivan@gmail.com>",
   "contributors": [ 
     { "name": "Divan Visagie", "email": "visagiedivan@gmail.com" }
@@ -13,9 +13,9 @@
     "events": ">= 0.5.0",
     "colors" : ">= 0.6.0",
     "q" : ">= 0.8.0",
-    "mime" : ">= 1.2.0",
     "request" : ">= 2.11.0",
-    "http-proxy" : ">= 0.8.7"
+    "http-proxy" : ">= 0.8.7",
+    "pageserver" : ">= 0.0.1"
   },
   "devDependencies": {
     

@@ -1,9 +1,21 @@
 NARF 
 ====
 
-Narf is a basic framework for creating a JSON API with node , it currently supports both GET and POST as well as web sockets.
+Narf is a basic framework for creating a JSON API with node , it supports both HTTP ( With a selection of verbs ) as well as web sockets.
 
-The idea with NARF is that all you have to do for GET, POST and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For GET and POST data is returned to the client by either a return statement (not recommended) or by use of the ret( [object data] ) function.
+The idea with NARF is that all you have to do for HTTP and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For HTTP, data is returned to the client either by use of a callback function , which will automatically convert the data to a JSON format ,ie: 'callback( [object data] )` or by piping data directly back into the response object.
+
+Supported HTTP verbs ( as of 0.2.1 ):
+
+* GET
+
+* HEAD
+
+* PUT
+
+* POST
+
+* DELETE
 
 ## Usage
 

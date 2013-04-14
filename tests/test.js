@@ -62,7 +62,7 @@ function performRequest( method ){
 
 			//console.log(responseString);
 
-			if ( method === 'POST' ){
+			if ( method === 'POST' || method === 'PUT' ){
 				if ( responseString === '{"testText":"here is some text","testNumber":1001001}' )
 					toReturn = true;
 				else{
@@ -218,7 +218,7 @@ function authTest(){
 /* Start unit Tests*/
 function startTest(){
 
-	var testCount = 6;
+	var testCount = 7;
 	var testCountFlag = 0;
 	var testPassed = true;
 
@@ -238,7 +238,7 @@ function startTest(){
 	performRequest( 'GET' ).then( function( passed ){
 
 		console.timeEnd('GET');
-		console.log(passed ? 'passed'.cyan : 'failed'.red);
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
 
@@ -249,7 +249,18 @@ function startTest(){
 	performRequest( 'POST' ).then( function( passed ){
 
 		console.timeEnd( 'POST' );
-		console.log(passed ? 'passed'.cyan : 'failed'.red);
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+
+		e.emit( 'increment',1 );
+	} );
+
+	console.time( 'PUT' );
+	performRequest( 'PUT' ).then( function( passed ){
+
+		console.timeEnd( 'PUT' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
 
@@ -404,6 +415,16 @@ function setUp(){
 				console.log('server received object');
 				console.log( data.url );
 
+				ret( data.body );
+			}
+		},
+
+		PUT : {
+
+			loopBack : function( data , ret ){
+
+				console.log( 'put was called on the server side' );
+				console.log( data.body );
 				ret( data.body );
 			}
 		}
