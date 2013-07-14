@@ -1,7 +1,7 @@
 {
   "name": "narf",
   "description": "narf server library",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "Divan Visagie <visagiedivan@gmail.com>",
   "contributors": [ 
     { "name": "Divan Visagie", "email": "visagiedivan@gmail.com" }
