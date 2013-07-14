@@ -69,12 +69,16 @@ function performRequest( method ){
 					toReturn = false;
 				}
 			}
-			else{
+			else if ( method === 'GET' ){
 				if ( responseString === '{"headers":{"content-type":"text/json","content-length":"53","serverfunction":"loopBack","key":"50e85fe18e17e3616774637a82968f4c","host":"localhost:8080","connection":"keep-alive"},"url":{}}' )
 					toReturn = true;
 				else
 					toReturn = false;
-				console.log( 'response string: '.red + responseString );
+			} else {
+
+				//console.log(  responseString );
+				//console.log( 'break return'.red );
+				toReturn = (responseString === '{"error":"Unsupported Server function"}');
 			}
 
 			deferred.resolve( toReturn );
@@ -218,7 +222,7 @@ function authTest(){
 /* Start unit Tests*/
 function startTest(){
 
-	var testCount = 7;
+	var testCount = 8;
 	var testCountFlag = 0;
 	var testPassed = true;
 
@@ -260,6 +264,19 @@ function startTest(){
 	performRequest( 'PUT' ).then( function( passed ){
 
 		console.timeEnd( 'PUT' );
+		console.log( passed ? 'passed'.cyan : 'failed'.red );
+
+		if (!passed) testPassed = passed;
+
+		e.emit( 'increment',1 );
+	} );
+
+
+	console.log( 'break test' );
+	console.time( 'Method_break_test' );
+	performRequest( 'DELETE' ).then( function( passed ){
+
+		console.timeEnd( 'Method_break_test' );
 		console.log( passed ? 'passed'.cyan : 'failed'.red );
 
 		if (!passed) testPassed = passed;
