@@ -1,6 +1,10 @@
 NARF 
 ====
 
+[![NPM version](https://badge.fury.io/js/narf.png)](http://badge.fury.io/js/narf)
+[![NGN Dependencies](https://david-dm.org/divanvisagie/narf.png)](https://david-dm.org/divanvisagie/narf)
+
+
 Narf is a basic framework for creating a JSON API with node , it supports both HTTP ( With a selection of verbs ) as well as web sockets.
 
 The idea with NARF is that all you have to do for HTTP and Socket is put the functions you want exposed in a particular object and everything else will be handled for you. For HTTP, data is returned to the client either by use of a callback function , which will automatically convert the data to a JSON format ,ie: 'callback( [object data] )` or by piping data directly back into the response object.
