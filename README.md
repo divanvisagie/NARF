@@ -1,6 +1,7 @@
 NARF 
 ====
 
+[![Travis](https://travis-ci.org/divanvisagie/NARF.png)](https://travis-ci.org/divanvisagie/NARF)
 [![NPM version](https://badge.fury.io/js/narf.png)](http://badge.fury.io/js/narf)
 [![NGN Dependencies](https://david-dm.org/divanvisagie/narf.png)](https://david-dm.org/divanvisagie/narf)
 
