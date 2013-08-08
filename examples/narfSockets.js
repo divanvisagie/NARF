@@ -2,48 +2,48 @@ var narf = require( '../lib/narf' );
 
 var APIFunctions = {
 
-	GET : {
+  GET : {
 
-		loopBack : function ( headers, url ){
+    loopBack : function ( headers, url ){
 
-			return { 'headers' : headers, 'url' : url };
-		}
-	}
+      return { 'headers' : headers, 'url' : url };
+    }
+  }
 };
 
 
 var SocketFunctions = {
 
-	updateAll : function( messageData, conn ){
+  updateAll : function( messageData, conn ){
 
-		if( messageData.message ){
+    if( messageData.message ){
 
-			narf.getConnectedClients().forEach( function( connection ){
-				
-				if (conn != connection)
-					connection.send( JSON.stringify( { message : messageData.message } ) );
-			});
+      narf.getConnectedClients().forEach( function( connection ){
 
-		}else{
+        if (conn != connection)
+          connection.send( JSON.stringify({ message : messageData.message }) );
+      });
 
-			connection.send( JSON.stringify( { message : '' } ) );
-		}
-	}
+    }else{
+
+      connection.send( JSON.stringify( { message : '' } ) );
+    }
+  }
 };
 
 function connectionHandler( request ){
 
-	console.log( 'connections open: ' +  narf.getConnectedClients().length );
-	return true;
+  console.log( 'connections open: ' +  narf.getConnectedClients().length );
+  return true;
 }
 
 narf.configure( {
 
-	port : 8080
+  port : 8080
 
 } ).then( narf.startHTTPServer( APIFunctions , function(){
 
-	narf.narfSocketServer( SocketFunctions, connectionHandler );
+  narf.narfSocketServer( SocketFunctions, connectionHandler );
 
 } ) );
 

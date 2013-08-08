@@ -1,74 +1,75 @@
 var narf = require( '../lib/narf' ),
-	q = require( 'q' );
+  q = require( 'q' );
 
 
 var APIFunctions = { //forward facing functions
 
-	GET : {  //headers object and parsed url are passed as a parameter for get functions
+  GET : {  /* headers object and parsed url are passed as a parameter for 
+              get functions */
 
-		loopBack : function( headers, url, ret ){
-				
-			console.log( headers );
-			ret( { 'headers' : headers, 'parsedURL' : url } );
-		},
+    loopBack : function( headers, url, ret ){
 
-		getHello : function( headers, url, ret ){
+      console.log( headers );
+      ret( { 'headers' : headers, 'parsedURL' : url } );
+    },
 
-			ret( { 'Hello' : 'world' } );
-		}
-	},
+    getHello : function( headers, url, ret ){
 
-	POST : {  //post body is passed as a parameter for POST functions
+      ret( { 'Hello' : 'world' } );
+    }
+  },
 
-		loopBack : function( body ){
+  POST : {  //post body is passed as a parameter for POST functions
 
-			return body;
-		}
-	}
+    loopBack : function( body ){
+
+      return body;
+    }
+  }
 };
 
 var socketFunctions = {
 
-	updateAll : function( messageData ){
+  updateAll : function( messageData ){
 
-		console.log( messageData );
-	}
+    console.log( messageData );
+  }
 };
 
 function connectionHandler( request ){
 
-	return true;
+  return true;
 }
 
 var auth_function = function( request, url_object ){
 
-	var deferred = q.defer();
-	deferred.resolve( false );
-	return deferred.promise;
+  var deferred = q.defer();
+  deferred.resolve( false );
+  return deferred.promise;
 };
 
 /* Start the server */
 var narfHttp = new narf.HttpServer({
 
-	port : 'auto'
+  port : 'auto'
 }).start();
 
 
 narfHttp.on( 'port', function( data ){
 
-	console.log( 'http server started' );
-	console.log( data );
+  console.log( 'http server started' );
+  console.log( data );
 
 } );
 
 narfHttp.on( 'error', function( err ){
 
-	console.log( err );
+  console.log( err );
 } );
 
 
 narfHttp.addAPI( {
-	functions : APIFunctions,
-	authentication : auth_function
+  functions : APIFunctions,
+  authentication : auth_function
 } );
 

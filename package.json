@@ -28,7 +28,7 @@
   "main": "./lib/narf",
   "preferGlobal": "true",
   "bin": {
-    "narf" : "./lib/narfconfig.js"
+    "narf" : "./bin/narfconfig.js"
   },
   "scripts" : { "test" : "node ./tests/test.js" },
   "engines": { "node": ">= 0.8.4" }
