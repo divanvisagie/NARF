@@ -1,0 +1,38 @@
+{
+  "name": "nnf",
+  "description": "Node Networked Functions",
+  "version": "0.1.0",
+  "homepage": "https://github.com/divanvisagie/nnf",
+  "author": {
+    "name": "Divan Visagie",
+    "email": "visagiedivan@gmail.com",
+    "url": "dvisagie.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/divanvisagie/nnf.git"
+  },
+  "bugs": {
+    "url": "https://github.com/divanvisagie/nnf/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/divanvisagie/nnf/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/nnf",
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "scripts": {
+    "test": "grunt nodeunit"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.6.0",
+    "grunt-contrib-nodeunit": "~0.2.0",
+    "grunt-contrib-watch": "~0.4.0",
+    "grunt": "~0.4.1"
+  },
+  "keywords": []
+}
