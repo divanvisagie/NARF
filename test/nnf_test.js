@@ -1,6 +1,7 @@
 'use strict';
 
-var nnf = require('../lib/nnf.js');
+var nnf = require('../lib/nnf.js'),
+    request = require('request');
 
 /*
   ======== A Handy Little Nodeunit Reference ========
@@ -21,6 +22,35 @@ var nnf = require('../lib/nnf.js');
     test.doesNotThrow(block, [error], [message])
     test.ifError(value)
 */
+exports['nnf'] = {
+
+  setUp: function( done ){
+
+    this.nnf = nnf;
+
+    this.instance = [
+      { name: 'Router' },
+      { name: 'Server' },
+      { name: 'createServer' }
+    ];
+
+    done();
+  },
+  shape: function( test ){
+
+    test.expect( this.instance.length );
+
+    this.instance.forEach(function( property ) {
+      test.notEqual( typeof this.nnf[ property.name ], 'undefined' );
+    }, this);
+
+    test.done();
+  },
+  tearDown: function( done ){
+
+    done();
+  }
+};
 
 exports['Server'] = {
   setUp: function( done ) {
@@ -58,6 +88,14 @@ exports['Server'] = {
     }, this);
 
     test.done();
+  },
+  '404': function( test ){
+    test.expect(1);
+
+    request('http://localhost:8080', function (error, response, body) {
+      test.equal( body, 'Not Found\n' );
+      test.done();
+    });
   },
   tearDown: function( done ) {
     
