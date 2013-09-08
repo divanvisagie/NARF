@@ -5,7 +5,12 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     nodeunit: {
-      files: ['test/**/*_test.js'],
+      //files: ['test/**/*_test.js'],
+      tests: [
+        'test/nnf.js',
+        'test/router.js',
+        'test/server.js'
+      ]
     },
     jshint: {
       options: {

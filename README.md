@@ -7,7 +7,26 @@ Install the module with: `npm install nnf`
 
 ```javascript
 var nnf = require('nnf');
-nnf.awesome(); // "awesome"
+
+var server = nnf.createServer({
+  type: 'text/json'
+});
+server.listen(8080);
+
+var router = new nnf.Router({
+  path: '/test',
+  type: 'text/json'
+}).setHandler({
+
+  GET: {
+    test: function(data, cb){
+
+      cb({ 'test':'value' });
+    }
+  }
+});
+server.addRouter(router);
+
 ```
 
 ## Documentation
