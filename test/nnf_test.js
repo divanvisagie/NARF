@@ -71,7 +71,8 @@ exports['Server'] = {
     ];
 
     this.instance = [
-      { name: 'routers' }
+      { name: 'routers' },
+      { name: 'type' }
     ];
 
     done();
@@ -93,7 +94,7 @@ exports['Server'] = {
     test.expect(1);
 
     request('http://localhost:8080', function (error, response, body) {
-      test.equal( body, 'Not Found\n' );
+      test.equal( body, '{"error":"not found"}' );
       test.done();
     });
   },
