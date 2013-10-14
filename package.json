@@ -29,8 +29,8 @@
     "test": "grunt nodeunit"
   },
   "dependencies" : {
-    "jsontoxml": "~0.0.11"
-   
+    "jsontoxml": "~0.0.11",
+    "portastic": "~0.0.1"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.6.0",

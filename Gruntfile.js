@@ -9,6 +9,7 @@ module.exports = function(grunt) {
       tests: [
         'test/nnf.js',
         'test/router.js',
+        'test/core.js',
         'test/server.js'
       ]
     },
