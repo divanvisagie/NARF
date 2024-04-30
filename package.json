@@ -11,7 +11,7 @@
     "websocket": ">= 1.0.7",
     "portastic": ">= 0.0.1",
     "events": ">= 0.5.0",
-    "colors" : ">= 0.6.0",
+    "colors" : "0.6.0",
     "q" : ">= 0.8.0",
     "request" : ">= 2.11.0",
     "http-proxy" : ">= 0.8.7",
